@@ -1,63 +1,61 @@
-import streamlit as st
 import os
+import streamlit as st
 from groq import Groq
 
-st.title("🕷️ غرفة عمليات شبكة العناكب")
+st.set_page_config(page_title="Spider Network Operations", page_icon="🕷️", layout="wide")
 
-# جلب مفتاح API من السكرتس
-api_key = st.secrets.get("GROQ_API_KEY") or os.getenv("GROQ_API_KEY")
+st.title("🕷️ Spider Network Operations Room")
+
+api_key = st.secrets.get("GROQ_API_KEY")
 
 if not api_key:
-    st.error("مفتاح GROQ_API_KEY غير مضاف في Secrets!")
+    st.error("⚠️ GROQ_API_KEY is missing in Secrets!")
     st.stop()
 
 client = Groq(api_key=api_key)
 
-tab1, tab2 = st.tabs(["🚀 Fast Lane (توليد تلقائي)", "🛡️ Guarded Lane (إشراف والتداول)"])
+tab1, tab2 = st.tabs(["🚀 Fast Lane (Auto Generation)", "🛡️ Guarded Lane (Strategic Control)"])
 
 with tab1:
+    st.subheader("Spider Tasks Management")
+    
     spider_type = st.radio(
-        "اختر نوع العنكبوت:",
+        "Select Spider Type:",
         ["Affiliate Spider", "Media Spider", "Digital Products Spider"]
     )
     
-    task_desc = st.text_area("وصف المهمة أو المنتج المستهدف:", height=150)
+    task_prompt = st.text_area("Task Description or Target Product:", placeholder="Enter task details here...")
     
-    if st.button("تشغيل العنكبوت 🚀"):
-        if not task_desc:
-            st.warning("رجاء أدخل وصف المهمة أولاً!")
+    if st.button("Run Spider 🚀"):
+        if not task_prompt.strip():
+            st.warning("Please enter the task description first.")
         else:
-            with st.spinner(f"جاري تشغيل {spider_type}..."):
-                system_prompt = f"أنت عنصر ذكاء اصطناعي خبير باسم {spider_type}. قُم بتحليل الطلب وتوليد مخرجات استراتيجية، سكريبتات إعلانية، ونصوص تسويقية بدقة عالية."
-                
+            with st.spinner("Processing generation via Groq engine..."):
                 try:
-                    response = client.chat.completions.create(
-                        model="llama-3.3-70b-versatile",
+                    completion = client.chat.completions.create(
+                        model="llama-3.1-70b-versatile",
                         messages=[
-                            {"role": "system", "content": system_prompt},
-                            {"role": "user", "content": task_desc}
+                            {
+                                "role": "system",
+                                "content": f"You are a professional expert working in the Spider Network under the {spider_type} module. Provide accurate, well-organized, and professional responses in Arabic."
+                            },
+                            {
+                                "role": "user",
+                                "content": task_prompt
+                            }
                         ],
-                        temperature=0.7
+                        temperature=0.7,
+                        max_tokens=2048
                     )
                     
-                    output_text = response.choices[0].message.content
-                    st.success("تم تنفيذ المهمة بنجاح!")
-                    st.markdown("### 📊 المخرجات والتحليل:")
-                    st.write(output_text)
+                    result_text = completion.choices[0].message.content
+                    st.success("Task completed successfully!")
+                    st.markdown("### Generated Results:")
+                    st.write(result_text)
                     
                 except Exception as e:
-                    st.error(f"حدث خطأ أثناء التوليد: {e}")
+                    st.error(f"Execution failed due to a technical error: {e}")
 
 with tab2:
-    st.subheader("إشراف التداول (Human-In-The-Loop)")
-    st.info("يتم إيقاف الصفقة هنا تلقائياً لانتظار موافقتك البشرية قبل التنفيذ.")
-    st.markdown("#### 📈 صفقة قيد الانتظار: BTC/USDT")
-    st.write("السعر الحالي: **$64,250** | الإشارة: **BUY (شراء)**")
-    
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("✅ موافقة وتنفيذ الصفقة"):
-            st.success("تم تنفيذ الصفقة بنجاح!")
-    with col2:
-        if st.button("❌ رفض وإلغاء"):
-            st.warning("تم إلغاء الصفقة.")
+    st.subheader("Strategic Supervision Zone")
+    st.info("This section is reserved for sensitive financial and strategic decisions (Guarded Lane).")
