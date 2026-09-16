@@ -33,8 +33,7 @@ with tab1:
             with st.spinner("Processing generation via Groq..."):
                 try:
                     completion = client.chat.completions.create(
-                        model="llama3-70b-8192",
-
+                        model="openai/gpt-oss-120b",
                         messages=[
                             {
                                 "role": "system",
