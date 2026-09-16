@@ -2,19 +2,19 @@ import os
 import streamlit as st
 from groq import Groq
 
-st.set_page_config(page_title="Spider Network Operations", page_icon="🕷️", layout="wide")
+st.set_page_config(page_title="Spider Network", page_icon="🕷️", layout="wide")
 
-st.title("🕷️ Spider Network Operations Room")
+st.title("🕷️ Spider Network Operations")
 
 api_key = st.secrets.get("GROQ_API_KEY")
 
 if not api_key:
-    st.error("⚠️ GROQ_API_KEY is missing in Secrets!")
+    st.error("⚠️ GROQ_API_KEY is missing in Streamlit Secrets!")
     st.stop()
 
 client = Groq(api_key=api_key)
 
-tab1, tab2 = st.tabs(["🚀 Fast Lane (Auto Generation)", "🛡️ Guarded Lane (Strategic Control)"])
+tab1, tab2 = st.tabs(["🚀 Fast Lane", "🛡️ Guarded Lane"])
 
 with tab1:
     st.subheader("Spider Tasks Management")
@@ -30,10 +30,10 @@ with tab1:
         if not task_prompt.strip():
             st.warning("Please enter the task description first.")
         else:
-            with st.spinner("Processing generation via Groq engine..."):
+            with st.spinner("Processing generation via Groq..."):
                 try:
                     completion = client.chat.completions.create(
-                        model="llama-3.1-70b-versatile",
+                        model="llama-3.3-70b-versatile",
                         messages=[
                             {
                                 "role": "system",
@@ -54,8 +54,8 @@ with tab1:
                     st.write(result_text)
                     
                 except Exception as e:
-                    st.error(f"Execution failed due to a technical error: {e}")
+                    st.error(f"Execution failed: {e}")
 
 with tab2:
     st.subheader("Strategic Supervision Zone")
-    st.info("This section is reserved for sensitive financial and strategic decisions (Guarded Lane).")
+    st.info("This section is reserved for sensitive financial and strategic decisions.")
