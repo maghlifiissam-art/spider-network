@@ -1,0 +1,49 @@
+# الموقع فالريبو: .github/workflows/auto-publish-coloring-book.yml
+name: Auto Publish Coloring Book (Gumroad)
+
+on:
+  workflow_dispatch:
+    inputs:
+      theme:
+        description: "ثيم كتاب التلوين (مثال: حيوانات الغابة)"
+        required: true
+      pages:
+        description: "عدد الصفحات"
+        required: false
+        default: "8"
+      price_cents:
+        description: "الثمن بالسنتيم (300 = $3.00)"
+        required: false
+        default: "300"
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install requests reportlab groq
+
+      - name: Generate & Publish Coloring Book
+        env:
+          GUMROAD_ACCESS_TOKEN: ${{ secrets.GUMROAD_ACCESS_TOKEN }}
+          POLLINATIONS_TOKEN: ${{ secrets.POLLINATIONS_TOKEN }}
+          COLORING_THEME: ${{ inputs.theme }}
+          COLORING_PAGES: ${{ inputs.pages }}
+          COLORING_PRICE_CENTS: ${{ inputs.price_cents }}
+        run: python auto_publish_coloring_book.py
+
+      - name: Commit generated files
+        run: |
+          git config user.name "spider-network-bot"
+          git config user.email "bot@spider-network.local"
+          git add generated_coloring_books/
+          git diff --cached --quiet || git commit -m "chore: كتاب تلوين جديد منشور تلقائياً"
+          git push

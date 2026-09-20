@@ -1,0 +1,62 @@
+# الموقع فالريبو: .github/workflows/auto-publish-book.yml
+name: Auto Publish Book (Gumroad)
+
+on:
+  workflow_dispatch:
+    inputs:
+      topic:
+        description: "موضوع الكتاب"
+        required: true
+      genre:
+        description: "النوع (دليل عملي، قصة، تعليمي...)"
+        required: false
+        default: "دليل عملي / How-to"
+      language:
+        description: "اللغة"
+        required: false
+        default: "العربية"
+      chapters:
+        description: "عدد الفصول"
+        required: false
+        default: "5"
+      price_cents:
+        description: "الثمن بالسنتيم (500 = $5.00)"
+        required: false
+        default: "500"
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install groq requests
+
+      - name: Generate & Publish Book
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          GUMROAD_ACCESS_TOKEN: ${{ secrets.GUMROAD_ACCESS_TOKEN }}
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}
+          BOOK_TOPIC: ${{ inputs.topic }}
+          BOOK_GENRE: ${{ inputs.genre }}
+          BOOK_LANGUAGE: ${{ inputs.language }}
+          BOOK_CHAPTERS: ${{ inputs.chapters }}
+          BOOK_PRICE_CENTS: ${{ inputs.price_cents }}
+        run: python auto_publish_book.py
+
+      - name: Commit generated book file
+        run: |
+          git config user.name "spider-network-bot"
+          git config user.email "bot@spider-network.local"
+          git add generated_books/
+          git diff --cached --quiet || git commit -m "chore: كتاب جديد منشور تلقائياً"
+          git push

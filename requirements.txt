@@ -1,3 +1,8 @@
-streamlit
-langgraph
-groq
+Flask>=3.0,<4
+gunicorn>=22,<24
+requests>=2.31,<3
+groq>=0.11,<1
+streamlit>=1.38,<2
+reportlab>=4.2,<5
+arabic-reshaper>=3.0,<4
+python-bidi>=0.6,<1
