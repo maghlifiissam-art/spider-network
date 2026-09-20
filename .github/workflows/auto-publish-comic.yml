@@ -1,0 +1,69 @@
+# الموقع فالريبو: .github/workflows/auto-publish-comic.yml
+name: Auto Publish Comic Book (Gumroad)
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "طريقة الإدخال"
+        required: true
+        type: choice
+        options:
+          - prompt
+          - script
+      topic:
+        description: "الفكرة العامة (إيلا mode=prompt)"
+        required: false
+        default: ""
+      user_script:
+        description: "السيناريو الكامل (إيلا mode=script)"
+        required: false
+        default: ""
+      language:
+        description: "لغة الحوار"
+        required: false
+        default: "العربية"
+      panels:
+        description: "عدد اللوحات"
+        required: false
+        default: "10"
+      price_cents:
+        description: "الثمن بالسنتيم (400 = $4.00)"
+        required: false
+        default: "400"
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install groq requests reportlab arabic-reshaper python-bidi
+
+      - name: Generate & Publish Comic
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          GUMROAD_ACCESS_TOKEN: ${{ secrets.GUMROAD_ACCESS_TOKEN }}
+          POLLINATIONS_TOKEN: ${{ secrets.POLLINATIONS_TOKEN }}
+          COMIC_MODE: ${{ inputs.mode }}
+          COMIC_TOPIC: ${{ inputs.topic }}
+          COMIC_USER_SCRIPT: ${{ inputs.user_script }}
+          COMIC_LANGUAGE: ${{ inputs.language }}
+          COMIC_PANELS: ${{ inputs.panels }}
+          COMIC_PRICE_CENTS: ${{ inputs.price_cents }}
+        run: python auto_publish_comic.py
+
+      - name: Commit generated files
+        run: |
+          git config user.name "spider-network-bot"
+          git config user.email "bot@spider-network.local"
+          git add generated_comics/
+          git diff --cached --quiet || git commit -m "chore: قصة مصورة جديدة منشورة تلقائياً"
+          git push

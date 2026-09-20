@@ -1,0 +1,41 @@
+# Emplacement attendu dans le dépôt : .github/workflows/spider-monitor.yml
+name: Spider Network Hourly Monitor
+
+on:
+  schedule:
+    - cron: "0 * * * *"   # toutes les heures, à la minute 0 (heure UTC)
+  workflow_dispatch: {}     # permet aussi de le lancer manuellement depuis GitHub
+
+permissions:
+  contents: write   # nécessaire pour committer le fichier de log mis à jour
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout du dépôt
+        uses: actions/checkout@v4
+
+      - name: Installer Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Installer les dépendances
+        run: pip install groq
+
+      - name: Lancer le script de surveillance
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}
+        run: python monitor_spider.py
+
+      - name: Commit et push du fichier de log
+        run: |
+          git config user.name "spider-network-bot"
+          git config user.email "bot@spider-network.local"
+          git add data/spider_log.json
+          git diff --cached --quiet || git commit -m "chore: mise à jour automatique du log Spider ($(date -u +'%Y-%m-%dT%H:%M:%SZ'))"
+          git push
