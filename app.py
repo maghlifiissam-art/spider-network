@@ -12,7 +12,17 @@ app.py — Spider Network Operations
 مع دعم كامل للعربية/الفرنسية/الإنجليزية.
 """
 
+import os
+
 import streamlit as st
+
+def _groq_key_from_secrets() -> str:
+    """Read GROQ_API_KEY from st.secrets when configured, else the environment."""
+    try:
+        return st.secrets.get("GROQ_API_KEY", "")
+    except Exception:
+        return os.environ.get("GROQ_API_KEY", "")
+
 from groq import Groq, APIError, APIConnectionError, RateLimitError
 
 # ---------------------------------------------------------------------------
@@ -25,6 +35,8 @@ st.set_page_config(
     page_icon="🕷️",
     layout="wide",
 )
+from rtl_support import inject_rtl
+inject_rtl()
 
 # ---------------------------------------------------------------------------
 # تعريف الوكلاء الثلاثة: System Prompts + Personas
@@ -156,7 +168,7 @@ def main():
         api_key = st.text_input(
             "Groq API Key",
             type="password",
-            value=st.secrets.get("GROQ_API_KEY", ""),
+            value=_groq_key_from_secrets(),
             help="يمكن تخزينه بشكل دائم في st.secrets بدل كتابته هنا كل مرة.",
         )
         language = st.selectbox("لغة المخرجات", list(LANGUAGES.keys()))

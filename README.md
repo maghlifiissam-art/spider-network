@@ -1,3 +1,10 @@
+
+### Market Spy -> Bullet contract
+
+Market Spy emits a versioned `market_spy_handoff.v1` envelope. Bullet accepts it through `MarketSpyHandoffAdapter`, preserves `observed_at`, `profit_evidence_gate`, and `category_scorecard`, and normalizes `no-go` to `no_go` without weakening the rejection. Supported Market Spy families map as follows: `ebook` -> `digital_book`, `design_asset` -> `product_design`, `wall_art_decor` -> `decor_art`; stickers, logos, children's coloring books, illustrated stories, and physical products remain distinct categories with specialist routes. Category checks block drafts when required trademark/IP, child-safety, print-economics, rights/licensing, or user-supplied illustrated-story topic/message evidence is missing.
+
+The allowed automation is limited to public-signal monitoring, scoring, rejection, and brief/listing drafts. Publishing, spending, account creation, and messaging as the user are forbidden. Both envelopes are drafts-only and keep human publish approval as a review gate.
+
 # Spider Network
 
 Spider Network is a Python workspace for a group of specialized assistants. It includes a Streamlit interface, a Boss Spider router, content and digital-product pipelines, engineering and electronics helpers, reporting, a WhatsApp bot, and Shopify/Gumroad integrations.
@@ -11,11 +18,44 @@ This repository is an early, untested integration workspace. Start with the loca
 - `pages/`: Streamlit pages for books, Boss Spider, dashboard, and engineering.
 - `book_spider.py`, `comic_spider.py`, `visual_spider.py`: content generation helpers.
 - `engineering_spider.py`, `electronics_spider.py`, `cloud_architect_spider.py`: technical design helpers.
+- `bullet_spider.py`: offline-first demand-capture scoring and draft production briefs from public/aggregate signals.
+- `schemas/bullet_*.schema.json`: source-backed opportunity and production-brief contracts.
 - `catalog.py`, `ops_log.py`: local JSON catalog and operation log.
 - `webhook_server.py`: Shopify paid-order webhook and email delivery service.
 - `whatsapp_bot.py`: WhatsApp Cloud API webhook and reply service.
 - `.github/workflows/`: manual/scheduled publishing and monitoring jobs. Review them before enabling.
 - `tests/`: local tests that do not call paid APIs or external services.
+
+## Bullet Spider (Demand Capture)
+
+Bullet Spider accepts Market Spy opportunity-shaped records or other **public, aggregate, authorized** demand signals. Every input must include an absolute source URL, a timezone-aware `observed_at`, geography, a named metric/proxy, confidence, and limitations. It scores purchase intent, urgency, competition, supply gap, producibility, margin and risk, then chooses one draft response. Affiliate recommendations are never random: a separate affiliate score requires demand, momentum, specific geography, competition, current price and currency, commission, freshness, provenance, confidence and risk. No selection is random. Every production brief requires source-backed demand/purchase-intent, momentum, specific geography, competition, current price/margin potential, freshness, production cost and time, confidence, and acceptable risk. Missing data, weak velocity, stale evidence, poor margin, high cost/time, low confidence or high risk returns `no_go` with explicit blockers and no brief. This discipline aims to improve the chance of profit but never guarantees profit:
+
+- new product
+- localization
+- bundle
+- service offer
+- pricing/listing update
+
+Supported opportunity categories include affiliate offers, general digital products, digital books/ebooks, product/design packs, and illustrated decor wall art (`decor_art`). Each category routes to its specialist plus QA; all keep the same provenance, score, review and no-auto-publish gates.
+
+The result is a source-backed opportunity plus a production brief for specialist spiders. Every brief contains provenance, review gates, and SEO, listing, and pricing drafts. Search visibility is always labeled as a proposal/proxy, never a ranking guarantee.
+
+Safe defaults are deliberate: without an adapter it returns no opportunities; the included fixture adapter has no network access. Future adapters must use sources that permit the access, preserve source URLs and observation times, use a conservative cadence, and stop on throttling or challenges. Do not feed it private search histories, individual profiles, inferred personal interests, or covert tracking data.
+
+Bullet Spider never publishes, buys ads, sends messages, or changes listings. `publish=true` is refused at the Boss route. Human approval remains a mandatory review gate after quality, IP/license, privacy, claims, source recency, and pricing checks.
+
+Programmatic use:
+
+```python
+from bullet_spider import OfflineFixtureAdapter, run_bullet_spider
+
+result = run_bullet_spider(
+    {"geography": "MA", "language": "ar"},
+    adapters=[OfflineFixtureAdapter(rows)],
+)
+```
+
+The Market Spy integration boundary is mapping-based and accepts fields such as `opportunity_id`, `topic`, `geography`, `observed_at`, `source_urls`, `metric`/`value`, `evidence_type`, `confidence`, `competition_score`, and `limitations`. Missing provenance is rejected rather than invented.
 
 ## Local setup
 
@@ -95,7 +135,7 @@ Do not expose either webhook publicly until signature/token verification and acc
 
 - The workspace has no database, migrations, authentication layer, deployment manifest, or end-to-end test suite.
 - Most AI and commerce paths need external accounts and can have usage or transaction costs.
-- Tests currently cover local catalog/log behavior and deterministic engineering/electronics calculations only.
+- Tests cover local catalog/log behavior, deterministic engineering/electronics calculations, and offline Bullet Spider scoring.
 - OpenSCAD rendering requires the separate `openscad` system executable. It is not installed by `requirements.txt`.
 - Arabic comic PDF output may need a readable Arabic font. `compile_comic_pdf.py` can use `ARABIC_FONT_PATH`; review font licensing before distribution.
 - The free NewsAPI plan may not permit the intended commercial use. Check current provider terms before enabling it.
@@ -110,3 +150,10 @@ Do not expose either webhook publicly until signature/token verification and acc
 5. Add CI for syntax, tests, and secret scanning before any deployment.
 
 No application deployment is performed by this branch.
+# Media Spider — Nexa Stories
+
+`media.v1` is an independent, fail-closed story/film subnetwork routed by `domain: media`. Its leaders are Trend Scout, Story Writer, independent Continuity/Fact Checker, Visual Director, Voice & Sound, Editor, and rights/quality QA. Handoffs are typed and versioned; trend/history claims require `source_url`, `confidence`, and `observed_at`.
+
+Defaults are offline, deterministic and zero-cost. Provider adapters are replaceable; no phone app is a dependency. Missing rights, evidence or visual continuity returns `no_go`. The spider never enables publishing: first-user review and a later explicit publish action stay outside this module.
+
+Run: `python -m unittest tests/test_media_spider.py -v`. Streamlit page: `pages/9_Media_Spider.py`.
