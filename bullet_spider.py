@@ -37,6 +37,9 @@ class DemandSignal:
     supply_gap: float = 0.5
     producibility: float = 0.5
     price_margin: float = 0.5
+    price: float | None = None
+    currency: str | None = None
+    commission_rate: float | None = None
     risk: float = 0.5
     language: str | None = None
     limitations: tuple[str, ...] = ()
@@ -59,6 +62,8 @@ class OpportunityAssessment:
     price_margin_score: float
     risk_score: float
     opportunity_score: float
+    affiliate_score: float | None
+    affiliate_eligible: bool
     confidence: float
     limitations: tuple[str, ...]
     claim_status: str = "proposal_proxy_no_ranking_guarantee"
@@ -153,6 +158,9 @@ def signal_from_mapping(row: Mapping[str, Any]) -> DemandSignal:
         supply_gap=_bounded(row.get("supply_gap", row.get("supply_gap_score", 0.5))),
         producibility=_bounded(row.get("producibility", 0.5)),
         price_margin=_bounded(row.get("price_margin", row.get("margin_score", 0.5))),
+        price=(None if row.get("price") is None else float(row["price"])),
+        currency=row.get("currency"),
+        commission_rate=(None if row.get("commission_rate") is None else float(row["commission_rate"])),
         risk=_bounded(row.get("risk", row.get("risk_score", 0.5))),
         language=row.get("language"),
         limitations=limitations,
@@ -188,9 +196,44 @@ def _response_type(signal: DemandSignal) -> ResponseType:
     return ResponseType.NEW_PRODUCT
 
 
-def assess_signal(signal: DemandSignal) -> OpportunityAssessment:
+def _affiliate_score(signal: DemandSignal, urgency: float, as_of: datetime) -> tuple[float | None, tuple[str, ...]]:
+    """Return a fully evidenced affiliate score, or explicit blockers.
+
+    There is no fallback/random pick: every required component must be present.
+    """
+    blockers = []
+    if signal.metric_value is None or signal.previous_value is None:
+        blockers.append("missing demand or momentum baseline")
+    if not signal.geography or signal.geography == "global":
+        blockers.append("missing specific geography")
+    if signal.price is None or not signal.currency:
+        blockers.append("missing price or currency")
+    if signal.commission_rate is None:
+        blockers.append("missing commission rate")
+    if not signal.source_url:
+        blockers.append("missing provenance")
+    observed = datetime.fromisoformat(signal.observed_at.replace("Z", "+00:00"))
+    age_hours = max(0.0, (as_of - observed).total_seconds() / 3600)
+    if age_hours > 168:
+        blockers.append("signal is older than seven days")
+    if blockers:
+        return None, tuple(blockers)
+    freshness = _bounded(1.0 - age_hours / 168.0)
+    commission = _bounded(signal.commission_rate / 0.5)
+    demand = _bounded(signal.metric_value / 100.0)
+    score = _bounded(
+        0.20 * demand + 0.15 * urgency + 0.10 * (1.0 - signal.competition)
+        + 0.10 * signal.price_margin + 0.12 * commission + 0.10 * freshness
+        + 0.10 * signal.confidence + 0.08 * signal.supply_gap + 0.05 * (1.0 - signal.risk)
+    )
+    return score, ()
+
+
+def assess_signal(signal: DemandSignal, as_of: datetime | None = None) -> OpportunityAssessment:
     intent = _intent(signal)
     urgency = _urgency(signal)
+    as_of = as_of or datetime.now(timezone.utc)
+    affiliate_score, affiliate_blockers = _affiliate_score(signal, urgency, as_of)
     score = _bounded(
         0.24 * intent
         + 0.16 * urgency
@@ -204,6 +247,7 @@ def assess_signal(signal: DemandSignal) -> OpportunityAssessment:
     limits = list(signal.limitations)
     if signal.metric_kind == "proxy":
         limits.append("The demand metric is a proxy, not verified sales.")
+    limits.extend(affiliate_blockers)
     limits.append("Search visibility and ranking are proposals only and are not guaranteed.")
     return OpportunityAssessment(
         opportunity_id=f"bullet-{signal.signal_id}",
@@ -220,6 +264,8 @@ def assess_signal(signal: DemandSignal) -> OpportunityAssessment:
         price_margin_score=signal.price_margin,
         risk_score=signal.risk,
         opportunity_score=score,
+        affiliate_score=affiliate_score,
+        affiliate_eligible=affiliate_score is not None,
         confidence=signal.confidence,
         limitations=tuple(dict.fromkeys(limits)),
     )
@@ -283,9 +329,12 @@ def run_bullet_spider(
     signals: list[DemandSignal] = []
     for adapter in adapters:
         signals.extend(adapter.collect(request))
-    assessments = sorted((assess_signal(signal) for signal in signals), key=lambda item: (-item.opportunity_score, item.opportunity_id))[:limit]
+    as_of_raw = request.get("as_of")
+    as_of = datetime.fromisoformat(str(as_of_raw).replace("Z", "+00:00")) if as_of_raw else datetime.now(timezone.utc)
+    assessments = sorted((assess_signal(signal, as_of=as_of) for signal in signals), key=lambda item: (-(item.affiliate_score or -1), -item.opportunity_score, item.opportunity_id))[:limit]
     language = request.get("language")
-    briefs = [build_production_brief(item, language=language) for item in assessments]
+    # No score, no recommendation or brief. Rejected assessments remain visible with blockers.
+    briefs = [build_production_brief(item, language=language) for item in assessments if item.affiliate_eligible]
     return {
         "status": "drafts_only_requires_human_approval",
         "generated_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
@@ -296,4 +345,4 @@ def run_bullet_spider(
             "No individual profiling, private search history, publishing, ads, or outreach is performed.",
             "Scores are decision-support proxies, not sales or ranking guarantees.",
         ],
-  }
+    }
