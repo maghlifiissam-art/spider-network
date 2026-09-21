@@ -34,11 +34,13 @@ class BulletSpiderTests(TestCase):
         self.assertEqual(brief["pricing_draft"]["amount"], None)
         self.assertTrue(opportunity["affiliate_eligible"])
         self.assertIsNotNone(opportunity["affiliate_score"])
+        self.assertEqual(opportunity["decision"], "go")
 
 
     def test_missing_commission_means_no_recommendation_or_brief(self):
         row = dict(self.rows[0])
         row.pop("commission_rate", None)
+        row["category"] = "affiliate"
         result = run_bullet_spider(
             {"geography": "MA", "as_of": "2026-09-21T00:00:00Z"},
             [OfflineFixtureAdapter([row])],
@@ -48,6 +50,19 @@ class BulletSpiderTests(TestCase):
         self.assertEqual(result["briefs"], [])
         self.assertIn("missing commission rate", result["opportunities"][0]["limitations"])
 
+
+
+    def test_missing_production_economics_is_no_go_and_no_brief(self):
+        row = dict(self.rows[0])
+        row.pop("production_cost", None)
+        result = run_bullet_spider(
+            {"geography": "MA", "as_of": "2026-09-21T00:00:00Z"},
+            [OfflineFixtureAdapter([row])],
+        )
+        opportunity = result["opportunities"][0]
+        self.assertEqual(opportunity["decision"], "no_go")
+        self.assertIn("production cost", opportunity["decision_blockers"])
+        self.assertEqual(result["briefs"], [])
 
     def test_supported_categories_route_to_specialists(self):
         expected = {
