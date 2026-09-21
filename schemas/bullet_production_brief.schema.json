@@ -4,10 +4,10 @@
   "title": "Bullet Spider Production Brief",
   "type": "object",
   "additionalProperties": false,
-  "required": ["brief_id", "opportunity_id", "title", "response_type", "geography", "deliverables", "assigned_spiders", "source_urls", "observed_at", "review_gates", "seo_draft", "listing_draft", "pricing_draft", "status", "limitations"],
+  "required": ["brief_id", "opportunity_id", "title", "response_type", "category", "geography", "deliverables", "assigned_spiders", "source_urls", "observed_at", "review_gates", "seo_draft", "listing_draft", "pricing_draft", "status", "limitations"],
   "properties": {
     "brief_id": {"type": "string"}, "opportunity_id": {"type": "string"}, "title": {"type": "string"},
-    "response_type": {"type": "string"}, "geography": {"type": "string"},
+    "response_type": {"type": "string"}, "category": {"enum": ["affiliate", "digital_product", "digital_book", "product_design", "decor_art"]}, "geography": {"type": "string"},
     "target_language": {"type": ["string", "null"]},
     "deliverables": {"type": "array", "items": {"type": "string"}},
     "assigned_spiders": {"type": "array", "items": {"type": "string"}},
