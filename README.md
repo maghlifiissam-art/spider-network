@@ -11,11 +11,42 @@ This repository is an early, untested integration workspace. Start with the loca
 - `pages/`: Streamlit pages for books, Boss Spider, dashboard, and engineering.
 - `book_spider.py`, `comic_spider.py`, `visual_spider.py`: content generation helpers.
 - `engineering_spider.py`, `electronics_spider.py`, `cloud_architect_spider.py`: technical design helpers.
+- `bullet_spider.py`: offline-first demand-capture scoring and draft production briefs from public/aggregate signals.
+- `schemas/bullet_*.schema.json`: source-backed opportunity and production-brief contracts.
 - `catalog.py`, `ops_log.py`: local JSON catalog and operation log.
 - `webhook_server.py`: Shopify paid-order webhook and email delivery service.
 - `whatsapp_bot.py`: WhatsApp Cloud API webhook and reply service.
 - `.github/workflows/`: manual/scheduled publishing and monitoring jobs. Review them before enabling.
 - `tests/`: local tests that do not call paid APIs or external services.
+
+## Bullet Spider (Demand Capture)
+
+Bullet Spider accepts Market Spy opportunity-shaped records or other **public, aggregate, authorized** demand signals. Every input must include an absolute source URL, a timezone-aware `observed_at`, geography, a named metric/proxy, confidence, and limitations. It scores purchase intent, urgency, competition, supply gap, producibility, margin and risk, then chooses one draft response. Affiliate recommendations are never random: a separate affiliate score requires demand, momentum, specific geography, competition, current price and currency, commission, freshness, provenance, confidence and risk. Missing or stale input produces blockers and no recommendation or production brief:
+
+- new product
+- localization
+- bundle
+- service offer
+- pricing/listing update
+
+The result is a source-backed opportunity plus a production brief for specialist spiders. Every brief contains provenance, review gates, and SEO, listing, and pricing drafts. Search visibility is always labeled as a proposal/proxy, never a ranking guarantee.
+
+Safe defaults are deliberate: without an adapter it returns no opportunities; the included fixture adapter has no network access. Future adapters must use sources that permit the access, preserve source URLs and observation times, use a conservative cadence, and stop on throttling or challenges. Do not feed it private search histories, individual profiles, inferred personal interests, or covert tracking data.
+
+Bullet Spider never publishes, buys ads, sends messages, or changes listings. `publish=true` is refused at the Boss route. Human approval remains a mandatory review gate after quality, IP/license, privacy, claims, source recency, and pricing checks.
+
+Programmatic use:
+
+```python
+from bullet_spider import OfflineFixtureAdapter, run_bullet_spider
+
+result = run_bullet_spider(
+    {"geography": "MA", "language": "ar"},
+    adapters=[OfflineFixtureAdapter(rows)],
+)
+```
+
+The Market Spy integration boundary is mapping-based and accepts fields such as `opportunity_id`, `topic`, `geography`, `observed_at`, `source_urls`, `metric`/`value`, `evidence_type`, `confidence`, `competition_score`, and `limitations`. Missing provenance is rejected rather than invented.
 
 ## Local setup
 
@@ -95,7 +126,7 @@ Do not expose either webhook publicly until signature/token verification and acc
 
 - The workspace has no database, migrations, authentication layer, deployment manifest, or end-to-end test suite.
 - Most AI and commerce paths need external accounts and can have usage or transaction costs.
-- Tests currently cover local catalog/log behavior and deterministic engineering/electronics calculations only.
+- Tests cover local catalog/log behavior, deterministic engineering/electronics calculations, and offline Bullet Spider scoring.
 - OpenSCAD rendering requires the separate `openscad` system executable. It is not installed by `requirements.txt`.
 - Arabic comic PDF output may need a readable Arabic font. `compile_comic_pdf.py` can use `ARABIC_FONT_PATH`; review font licensing before distribution.
 - The free NewsAPI plan may not permit the intended commercial use. Check current provider terms before enabling it.
