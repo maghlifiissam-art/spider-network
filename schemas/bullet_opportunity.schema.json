@@ -4,7 +4,7 @@
   "title": "Bullet Spider Opportunity Assessment",
   "type": "object",
   "additionalProperties": false,
-  "required": ["opportunity_id", "topic", "geography", "observed_at", "source_urls", "response_type", "intent_score", "urgency_score", "competition_score", "supply_gap_score", "producibility_score", "price_margin_score", "risk_score", "opportunity_score", "confidence", "limitations", "claim_status"],
+  "required": ["opportunity_id", "topic", "geography", "observed_at", "source_urls", "response_type", "category", "intent_score", "urgency_score", "competition_score", "supply_gap_score", "producibility_score", "price_margin_score", "risk_score", "opportunity_score", "confidence", "limitations", "claim_status"],
   "properties": {
     "opportunity_id": {"type": "string", "minLength": 1},
     "topic": {"type": "string", "minLength": 1},
@@ -12,6 +12,7 @@
     "observed_at": {"type": "string", "format": "date-time"},
     "source_urls": {"type": "array", "minItems": 1, "items": {"type": "string", "format": "uri"}},
     "response_type": {"enum": ["new_product", "localization", "bundle", "service_offer", "pricing_listing_update"]},
+    "category": {"enum": ["affiliate", "digital_product", "digital_book", "product_design", "decor_art"]},
     "intent_score": {"type": "number", "minimum": 0, "maximum": 1},
     "urgency_score": {"type": "number", "minimum": 0, "maximum": 1},
     "competition_score": {"type": "number", "minimum": 0, "maximum": 1},
