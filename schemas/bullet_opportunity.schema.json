@@ -4,7 +4,7 @@
   "title": "Bullet Spider Opportunity Assessment",
   "type": "object",
   "additionalProperties": false,
-  "required": ["opportunity_id", "topic", "geography", "observed_at", "source_urls", "response_type", "category", "intent_score", "urgency_score", "competition_score", "supply_gap_score", "producibility_score", "price_margin_score", "risk_score", "opportunity_score", "confidence", "limitations", "claim_status"],
+  "required": ["opportunity_id", "topic", "geography", "observed_at", "source_urls", "response_type", "category", "intent_score", "urgency_score", "competition_score", "supply_gap_score", "producibility_score", "price_margin_score", "risk_score", "opportunity_score", "confidence", "limitations", "claim_status", "decision", "decision_blockers"],
   "properties": {
     "opportunity_id": {"type": "string", "minLength": 1},
     "topic": {"type": "string", "minLength": 1},
@@ -23,6 +23,8 @@
     "opportunity_score": {"type": "number", "minimum": 0, "maximum": 1},
     "confidence": {"type": "number", "minimum": 0, "maximum": 1},
     "limitations": {"type": "array", "items": {"type": "string"}},
-    "claim_status": {"const": "proposal_proxy_no_ranking_guarantee"}
+    "claim_status": {"const": "proposal_proxy_no_ranking_guarantee"},
+    "decision": {"enum": ["go", "no_go"]},
+    "decision_blockers": {"type": "array", "items": {"type": "string"}}
   }
 }
