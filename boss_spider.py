@@ -33,10 +33,12 @@ from compile_pdf import compile_images_to_pdf
 from gumroad_publish import publish_book
 from catalog import add_product, search_catalog, load_catalog
 from ops_log import log_operation
-from news_spider import fetch_real_news, generate_blog_post
+from news_spider import fetch_news as fetch_real_news, write_blog_post as generate_blog_post
 from engineering_spider import design_part, design_project
 from electronics_spider import design_circuit
 from cloud_architect_spider import design_cloud_architecture
+from bullet_spider import MarketSpyHandoffAdapter, OfflineFixtureAdapter, run_bullet_spider
+from market_spy_spider import format_report, research_market
 
 MODEL = "llama-3.1-8b-instant"
 
@@ -61,12 +63,13 @@ def classify_intent(client: Groq, command: str, language: str) -> dict:
 
 Respond ONLY with a valid JSON object, no markdown fences:
 {
-  "action": "marketing" | "book" | "comic" | "coloring_book" | "poster" | "logo" | "news_blog" | "engineering_part" | "engineering_project" | "electronics_circuit" | "cloud_architecture" | "status" | "unknown",
+  "action": "market_intelligence" | "marketing" | "book" | "comic" | "coloring_book" | "poster" | "logo" | "news_blog" | "engineering_part" | "engineering_project" | "electronics_circuit" | "cloud_architecture" | "bullet_demand_capture" | "status" | "unknown",
   "publish": true or false,
   "parameters": { ... }
 }
 
 Parameters per action:
+- market_intelligence: {"query": "product, field, or niche", "geography": "ISO country code", "market_category": "digital_product"|"ebook"|"design_asset"|"wall_art_decor"|"sticker"|"logo"|"children_coloring_book"|"illustrated_story"|"physical_product"} (research-only; never publish)
 - marketing: {"agent_type": "affiliate"|"media"|"digital", "topic": "..."}
 - book: {"topic": "...", "genre": "...", "chapters": <int, default 5>, "price_cents": <int, default 500>}
 - comic: {"mode": "prompt"|"script", "topic": "...", "user_script": "...", "panels": <int, default 10>, "price_cents": <int, default 400>}
@@ -78,6 +81,7 @@ Parameters per action:
 - engineering_project: {"description": "..."} (a full product/assembly that should be broken down into multiple parts — use this when the user describes something bigger than one simple part, e.g. "a folding table" or "a wall shelf unit")
 - electronics_circuit: {"description": "..."} (LED resistor sizing, voltage divider, or battery runtime estimate)
 - cloud_architecture: {"description": "..."} (designing a backend/cloud system architecture for a product or feature)
+- bullet_demand_capture: {"topic": "...", "geography": "...", "language": "...", "signals": []} (score public/aggregate demand signals and prepare draft production briefs; signals must carry source_url and observed_at)
 - status: {} (user is asking about existing products/catalog, not requesting new content)
 - unknown: {} (command unclear — ask for clarification)
 
@@ -360,6 +364,38 @@ def _run_cloud_architecture(client: Groq, params: dict, command: str) -> dict:
     return {"success": True, "message": message}
 
 
+def _run_market_intelligence(params: dict, command: str) -> dict:
+    """Read-only public-signal research. No commerce or representation effects."""
+    query = params.get("query") or params.get("topic") or command
+    geography = (params.get("geography") or "US").upper()
+    report = research_market(query, geography, market_category=params.get("market_category"))
+    log_operation("market_spy", "success", message=f"{query} ({geography}): {len(report['signals'])} signals", product_name=query[:60])
+    return {"success": True, "message": format_report(report), "data": report}
+
+
+def _run_bullet(params: dict, publish: bool) -> dict:
+    """Boss route for draft-only demand capture. Publishing is always blocked."""
+    if publish:
+        return {"success": False, "message": "Bullet Spider only prepares drafts; publishing needs separate human approval."}
+    rows = params.get("signals") or []
+    market_envelope = params.get("market_spy_envelope")
+    adapters = [MarketSpyHandoffAdapter(market_envelope)] if market_envelope else ([OfflineFixtureAdapter(rows)] if rows else [])
+    result = run_bullet_spider(
+        {
+            "topic": params.get("topic", ""),
+            "geography": params.get("geography"),
+            "language": params.get("language"),
+        },
+        adapters=adapters,
+        limit=int(params.get("limit", 5)),
+    )
+    return {
+        "success": True,
+        "message": f"Bullet Spider prepared {len(result['briefs'])} reviewed draft brief(s). Nothing was published.",
+        "data": result,
+    }
+
+
 def _run_status(params: dict) -> dict:
     query = params.get("query", "")
     catalog = search_catalog(query, max_results=10) if query else load_catalog()[-10:]
@@ -379,7 +415,9 @@ def handle_command(command: str, language: str = "العربية", groq_api_key:
     publish = intent.get("publish", False)
     params = intent.get("parameters", {})
 
-    if action == "marketing":
+    if action == "market_intelligence":
+        return _run_market_intelligence(params, command)
+    elif action == "marketing":
         return _run_marketing(client, params, language)
     elif action == "book":
         return _run_book(client, params, language, publish)
@@ -399,6 +437,8 @@ def handle_command(command: str, language: str = "العربية", groq_api_key:
         return _run_electronics(client, params, command)
     elif action == "cloud_architecture":
         return _run_cloud_architecture(client, params, command)
+    elif action == "bullet_demand_capture":
+        return _run_bullet(params, publish)
     elif action == "status":
         return _run_status(params)
     elif action == "error":

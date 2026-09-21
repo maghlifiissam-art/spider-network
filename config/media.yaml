@@ -1,0 +1,13 @@
+contract_version: media.v1
+route: media
+brand: Nexa Stories
+adapters:
+  default: offline_fixture
+  image: replaceable
+  voice: replaceable
+  editor: ffmpeg_local
+zero_cost_default: true
+phone_app_dependency: false
+publish_allowed: false
+required_stages: [trend_scout, story_writer, fact_checker, visual_director, voice_sound, editor, rights_qa]
+no_go_on: [missing_source, missing_confidence, missing_observed_at, rights_unknown, consistency_failed, arabic_visual_inspection_failed]

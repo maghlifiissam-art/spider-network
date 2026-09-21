@@ -1,0 +1,1 @@
+{"kind":"books#volumes","totalItems":321,"items":[{"id":"book1","volumeInfo":{"title":"Budgeting in Morocco","publishedDate":"2026-08-01","categories":["Business & Economics"]},"saleInfo":{"country":"MA","saleability":"FOR_SALE","isEbook":true,"retailPrice":{"amount":4.99,"currencyCode":"USD"}}}]}

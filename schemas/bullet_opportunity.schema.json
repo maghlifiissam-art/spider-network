@@ -1,0 +1,150 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://spider-network.local/schemas/bullet_opportunity.schema.json",
+  "title": "Bullet Spider Opportunity Assessment",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "opportunity_id",
+    "topic",
+    "geography",
+    "observed_at",
+    "source_urls",
+    "response_type",
+    "category",
+    "intent_score",
+    "urgency_score",
+    "competition_score",
+    "supply_gap_score",
+    "producibility_score",
+    "price_margin_score",
+    "risk_score",
+    "opportunity_score",
+    "confidence",
+    "limitations",
+    "claim_status",
+    "decision",
+    "decision_blockers"
+  ],
+  "properties": {
+    "opportunity_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "topic": {
+      "type": "string",
+      "minLength": 1
+    },
+    "geography": {
+      "type": "string",
+      "minLength": 1
+    },
+    "observed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source_urls": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "format": "uri"
+      }
+    },
+    "response_type": {
+      "enum": [
+        "new_product",
+        "localization",
+        "bundle",
+        "service_offer",
+        "pricing_listing_update"
+      ]
+    },
+    "category": {
+      "enum": [
+        "affiliate",
+        "digital_product",
+        "digital_book",
+        "product_design",
+        "decor_art",
+        "sticker",
+        "logo",
+        "children_coloring_book",
+        "illustrated_story",
+        "physical_product"
+      ]
+    },
+    "intent_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "urgency_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "competition_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "supply_gap_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "producibility_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "price_margin_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "risk_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "opportunity_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "claim_status": {
+      "const": "proposal_proxy_no_ranking_guarantee"
+    },
+    "decision": {
+      "enum": [
+        "go",
+        "no_go"
+      ]
+    },
+    "decision_blockers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "category_scorecard": {
+      "type": "object"
+    },
+    "profit_evidence_gate": {
+      "type": "object"
+    }
+  }
+}

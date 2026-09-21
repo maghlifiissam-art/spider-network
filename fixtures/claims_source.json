@@ -1,0 +1,46 @@
+{
+  "contract_version": "media.claim.v1",
+  "observed_at": "2026-09-21T10:09:00+01:00",
+  "claims": [
+    {
+      "id": "sayf-hist-001",
+      "text": "In the early sixth century, Aksumite intervention defeated the Himyarite regime and established control over large parts of southwest Arabia.",
+      "kind": "historical_context",
+      "confidence": 0.94,
+      "source_url": "https://www.gw.uni-jena.de/phifakmedia/19325/54-the-martyrs-of-najran-and-the-end-of-the-himyar-in-a-neuwirth-et-al-ed-the-qurdan-in-context-leiden-2010-s-27-59.pdf",
+      "observed_at": "2026-09-21T10:08:00+01:00"
+    },
+    {
+      "id": "sayf-hist-002",
+      "text": "The Sasanians intervened militarily in Yemen around 570 and displaced Aksumite power.",
+      "kind": "historical_event",
+      "confidence": 0.91,
+      "source_url": "https://www.iranicaonline.org/articles/abna-term/",
+      "observed_at": "2026-09-21T10:08:00+01:00"
+    },
+    {
+      "id": "sayf-hist-003",
+      "text": "Later Arabic chronicles associate Sayf ibn Dhi Yazan with seeking outside help and with the Sasanian intervention; details and sequencing vary.",
+      "kind": "later_historical_tradition",
+      "confidence": 0.72,
+      "source_url": "https://www.iranicaonline.org/articles/arabia-ii-sasanians-and-arabia/",
+      "observed_at": "2026-09-21T10:08:00+01:00"
+    },
+    {
+      "id": "sayf-lit-001",
+      "text": "Sirat Sayf ibn Dhi Yazan is a late-medieval Egyptian popular epic that rewrites its historical setting and includes jinn, enchanted objects, and the diversion of the Nile.",
+      "kind": "literary_history",
+      "confidence": 0.96,
+      "source_url": "https://mizanproject.org/journal-post/solomon-legends-in-sirat-sayf-ibn-dhi-yazan/",
+      "observed_at": "2026-09-21T10:08:00+01:00"
+    },
+    {
+      "id": "sayf-visual-001",
+      "text": "Himyar ruled from Zafar in the fifth and early sixth centuries and its surviving material culture includes monumental architecture, inscriptions, stone sculpture, and metalwork shaped by broad trade contacts.",
+      "kind": "visual_context",
+      "confidence": 0.9,
+      "source_url": "https://asia.si.edu/whats-on/exhibitions/caravan-kingdoms-yemen-and-the-ancient-incense-trade/",
+      "observed_at": "2026-09-21T10:08:00+01:00"
+    }
+  ]
+}
