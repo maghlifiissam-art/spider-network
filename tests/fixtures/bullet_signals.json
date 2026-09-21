@@ -17,6 +17,8 @@
     "price": 12,
     "currency": "USD",
     "commission_rate": 0.3,
+    "production_cost": 2,
+    "production_time_hours": 12,
     "risk": 0.1,
     "language": "ar",
     "limitations": ["Synthetic offline fixture; not a live market claim."],
