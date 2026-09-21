@@ -157,3 +157,15 @@ No application deployment is performed by this branch.
 Defaults are offline, deterministic and zero-cost. Provider adapters are replaceable; no phone app is a dependency. Missing rights, evidence or visual continuity returns `no_go`. The spider never enables publishing: first-user review and a later explicit publish action stay outside this module.
 
 Run: `python -m unittest tests/test_media_spider.py -v`. Streamlit page: `pages/9_Media_Spider.py`.
+
+
+## Sales Spider (draft-only sales handling)
+
+Sales Spider (`sales_pipeline` Boss route) qualifies leads, prepares persuasion
+reply drafts, records attribution and commission records, and hands confirmed,
+payment-verified orders to the secure delivery flow. It is offline-first and
+fail-closed like Bullet and Media: automatic sending is disabled in code
+(`send_allowed=False`), drafts are never pre-approved, deals can only be `won`
+after payment verification, and leads without an attribution source are
+rejected. Review drafts in the `Sales Spider` Streamlit page; nothing is sent,
+published, or spent from this pipeline. See `README_SALES.md`.

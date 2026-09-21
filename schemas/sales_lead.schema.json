@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://spider-network/schemas/sales_lead.schema.json",
+  "title": "Sales Lead (sales.v1)",
+  "type": "object",
+  "required": ["lead_id", "channel", "source_ref", "product_sku", "created_at"],
+  "properties": {
+    "lead_id": {"type": "string", "minLength": 1},
+    "channel": {"enum": ["whatsapp", "tally", "web", "other"]},
+    "source_ref": {"type": "string", "minLength": 1, "description": "Attribution reference (UTM or conversation ref). Mandatory: leads without a source are rejected."},
+    "product_sku": {"type": "string", "minLength": 1},
+    "created_at": {"type": "string", "format": "date-time"},
+    "name": {"type": "string"},
+    "note": {"type": "string"}
+  },
+  "additionalProperties": false
+}

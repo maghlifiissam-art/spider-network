@@ -1,0 +1,6 @@
+{
+  "leads": [
+    {"lead_id": "t-lead-1", "channel": "whatsapp", "source_ref": "utm_campaign=test&utm_medium=test", "product_sku": "labor-book-2026", "created_at": "2026-09-21T00:00:00Z"},
+    {"lead_id": "t-lead-2", "channel": "tally", "source_ref": "", "product_sku": "labor-book-2026", "created_at": "2026-09-21T00:00:00Z"}
+  ]
+}
