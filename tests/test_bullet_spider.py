@@ -48,6 +48,24 @@ class BulletSpiderTests(TestCase):
         self.assertEqual(result["briefs"], [])
         self.assertIn("missing commission rate", result["opportunities"][0]["limitations"])
 
+
+    def test_supported_categories_route_to_specialists(self):
+        expected = {
+            "digital_product": "digital_products_spider",
+            "digital_book": "book_spider",
+            "product_design": "visual_spider",
+            "decor_art": "visual_spider",
+            "affiliate": "affiliate_spider",
+        }
+        for category, spider in expected.items():
+            row = dict(self.rows[0], signal_id=category, category=category)
+            result = run_bullet_spider(
+                {"geography": "MA", "as_of": "2026-09-21T00:00:00Z"},
+                [OfflineFixtureAdapter([row])],
+            )
+            self.assertEqual(result["opportunities"][0]["category"], category)
+            self.assertIn(spider, result["briefs"][0]["assigned_spiders"])
+
     def test_market_spy_shape_is_accepted_without_inventing_sales(self):
         signal = signal_from_mapping({
             "opportunity_id": "spy-1",
