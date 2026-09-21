@@ -13,6 +13,14 @@ from typing import Any, Iterable, Mapping, Protocol, Sequence
 from urllib.parse import urlparse
 
 
+class OpportunityCategory(str, Enum):
+    AFFILIATE = "affiliate"
+    DIGITAL_PRODUCT = "digital_product"
+    DIGITAL_BOOK = "digital_book"
+    PRODUCT_DESIGN = "product_design"
+    DECOR_ART = "decor_art"
+
+
 class ResponseType(str, Enum):
     NEW_PRODUCT = "new_product"
     LOCALIZATION = "localization"
@@ -42,6 +50,7 @@ class DemandSignal:
     commission_rate: float | None = None
     risk: float = 0.5
     language: str | None = None
+    category: str = OpportunityCategory.DIGITAL_PRODUCT.value
     limitations: tuple[str, ...] = ()
     metadata: Mapping[str, Any] = field(default_factory=dict)
 
@@ -54,6 +63,7 @@ class OpportunityAssessment:
     observed_at: str
     source_urls: tuple[str, ...]
     response_type: str
+    category: str
     intent_score: float
     urgency_score: float
     competition_score: float
@@ -75,6 +85,7 @@ class ProductionBrief:
     opportunity_id: str
     title: str
     response_type: str
+    category: str
     geography: str
     target_language: str | None
     deliverables: tuple[str, ...]
@@ -163,6 +174,7 @@ def signal_from_mapping(row: Mapping[str, Any]) -> DemandSignal:
         commission_rate=(None if row.get("commission_rate") is None else float(row["commission_rate"])),
         risk=_bounded(row.get("risk", row.get("risk_score", 0.5))),
         language=row.get("language"),
+        category=str(row.get("category", OpportunityCategory.DIGITAL_PRODUCT.value)),
         limitations=limitations,
         metadata=row.get("metadata") or {},
     )
@@ -229,6 +241,26 @@ def _affiliate_score(signal: DemandSignal, urgency: float, as_of: datetime) -> t
     return score, ()
 
 
+def _category(value: str) -> OpportunityCategory:
+    aliases = {
+        "digital_products": OpportunityCategory.DIGITAL_PRODUCT,
+        "ebook": OpportunityCategory.DIGITAL_BOOK,
+        "ebooks": OpportunityCategory.DIGITAL_BOOK,
+        "book": OpportunityCategory.DIGITAL_BOOK,
+        "design": OpportunityCategory.PRODUCT_DESIGN,
+        "designs": OpportunityCategory.PRODUCT_DESIGN,
+        "wall_art": OpportunityCategory.DECOR_ART,
+        "decor": OpportunityCategory.DECOR_ART,
+        "tableau": OpportunityCategory.DECOR_ART,
+    }
+    try:
+        return OpportunityCategory(value)
+    except ValueError:
+        if value in aliases:
+            return aliases[value]
+        raise ValueError(f"Unsupported opportunity category: {value}")
+
+
 def assess_signal(signal: DemandSignal, as_of: datetime | None = None) -> OpportunityAssessment:
     intent = _intent(signal)
     urgency = _urgency(signal)
@@ -256,6 +288,7 @@ def assess_signal(signal: DemandSignal, as_of: datetime | None = None) -> Opport
         observed_at=signal.observed_at,
         source_urls=(signal.source_url,),
         response_type=_response_type(signal).value,
+        category=_category(signal.category).value,
         intent_score=intent,
         urgency_score=urgency,
         competition_score=signal.competition,
@@ -284,6 +317,13 @@ REVIEW_GATES = (
 
 def build_production_brief(assessment: OpportunityAssessment, language: str | None = None) -> ProductionBrief:
     response = ResponseType(assessment.response_type)
+    category_map = {
+        OpportunityCategory.AFFILIATE: ("affiliate_spider", "qa_spider"),
+        OpportunityCategory.DIGITAL_PRODUCT: ("digital_products_spider", "qa_spider"),
+        OpportunityCategory.DIGITAL_BOOK: ("book_spider", "qa_spider"),
+        OpportunityCategory.PRODUCT_DESIGN: ("visual_spider", "digital_products_spider", "qa_spider"),
+        OpportunityCategory.DECOR_ART: ("visual_spider", "qa_spider"),
+    }
     spider_map = {
         ResponseType.NEW_PRODUCT: ("digital_products_spider", "qa_spider"),
         ResponseType.LOCALIZATION: ("digital_products_spider", "translation_spider", "qa_spider"),
@@ -297,10 +337,11 @@ def build_production_brief(assessment: OpportunityAssessment, language: str | No
         opportunity_id=assessment.opportunity_id,
         title=title,
         response_type=response.value,
+        category=assessment.category,
         geography=assessment.geography,
         target_language=language,
         deliverables=("product_or_offer_draft", "listing_draft", "seo_draft", "pricing_draft", "review_report"),
-        assigned_spiders=spider_map[response],
+        assigned_spiders=tuple(dict.fromkeys(category_map[_category(assessment.category)] + spider_map[response])),
         source_urls=assessment.source_urls,
         observed_at=assessment.observed_at,
         review_gates=REVIEW_GATES,
