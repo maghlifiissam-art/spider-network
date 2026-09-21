@@ -29,6 +29,8 @@ Bullet Spider accepts Market Spy opportunity-shaped records or other **public, a
 - service offer
 - pricing/listing update
 
+Supported opportunity categories include affiliate offers, general digital products, digital books/ebooks, product/design packs, and illustrated decor wall art (`decor_art`). Each category routes to its specialist plus QA; all keep the same provenance, score, review and no-auto-publish gates.
+
 The result is a source-backed opportunity plus a production brief for specialist spiders. Every brief contains provenance, review gates, and SEO, listing, and pricing drafts. Search visibility is always labeled as a proposal/proxy, never a ranking guarantee.
 
 Safe defaults are deliberate: without an adapter it returns no opportunities; the included fixture adapter has no network access. Future adapters must use sources that permit the access, preserve source URLs and observation times, use a conservative cadence, and stop on throttling or challenges. Do not feed it private search histories, individual profiles, inferred personal interests, or covert tracking data.
