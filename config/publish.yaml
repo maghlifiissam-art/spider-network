@@ -1,0 +1,14 @@
+contract_version: publish.v1
+brand: Nexa Stories
+# fail-closed: dry_run يبقى true حتى تكمل الربط (scripts/auth_*.py) وتأكد بلي كلشي خدام
+dry_run: true
+enabled_platforms: [youtube, facebook, instagram, tiktok]
+# يوتيوب: private حتى تدوز مراجعة الـ API compliance audit (وإلا يوتيوب كيحبس الفيديو private بلا استئناف)
+youtube_privacy: private
+youtube_category: "24"
+# تيكتوك: draft (كيوصل للمسودات وعصام ينشر بضغطة) حتى توافق TikTok على النشر المباشر
+tiktok_mode: draft
+# إنستغرام كيحتاج video_url عمومي: staging كيتدار برا هاد الوكيل فهاد المرحلة
+instagram_requires_staging: true
+zero_cost_default: true
+secrets_in_repo: false
