@@ -19,6 +19,7 @@ This repository is an early, untested integration workspace. Start with the loca
 - `book_spider.py`, `comic_spider.py`, `visual_spider.py`: content generation helpers.
 - `engineering_spider.py`, `electronics_spider.py`, `cloud_architect_spider.py`: technical design helpers.
 - `bullet_spider.py`: offline-first demand-capture scoring and draft production briefs from public/aggregate signals.
+- `publish_spider.py` + `publishers/`: fail-closed social publishing via official APIs (YouTube Data, Meta Graph, TikTok Content Posting). See `README_PUBLISH.md`.
 - `schemas/bullet_*.schema.json`: source-backed opportunity and production-brief contracts.
 - `catalog.py`, `ops_log.py`: local JSON catalog and operation log.
 - `webhook_server.py`: Shopify paid-order webhook and email delivery service.
@@ -90,6 +91,9 @@ Never commit real values. Use local environment variables, `.streamlit/secrets.t
 | `WHATSAPP_ACCESS_TOKEN` | `whatsapp_bot.py` | Calling WhatsApp Cloud API |
 | `WHATSAPP_PHONE_NUMBER_ID` | `whatsapp_bot.py` | Sending WhatsApp replies |
 | `WHATSAPP_VERIFY_TOKEN` | `whatsapp_bot.py` | Verifying the webhook subscription |
+| `YOUTUBE_CLIENT_ID`, `YOUTUBE_CLIENT_SECRET`, `YOUTUBE_REFRESH_TOKEN` | `publishers/youtube_publisher.py` | Publishing to YouTube via Data API |
+| `META_PAGE_ACCESS_TOKEN`, `META_PAGE_ID`, `META_IG_USER_ID` | `publishers/meta_publisher.py` | Posting to the Facebook Page / Instagram |
+| `TIKTOK_ACCESS_TOKEN`, `TIKTOK_REFRESH_TOKEN` | `publishers/tiktok_publisher.py` | Sending videos to TikTok drafts/inbox |
 
 The publishing workflows also read non-secret configuration such as `BOOK_TOPIC`, `BOOK_GENRE`, `BOOK_LANGUAGE`, `BOOK_CHAPTERS`, `BOOK_PRICE_CENTS`, `COMIC_TOPIC`, `COMIC_MODE`, `COMIC_LANGUAGE`, `COMIC_PANELS`, `COMIC_PRICE_CENTS`, `COLORING_THEME`, `COLORING_PAGES`, `COLORING_PRICE_CENTS`, `VISUAL_TYPE`, `VISUAL_TOPIC`, `VISUAL_STYLE`, `VISUAL_BRAND_NAME`, `VISUAL_STYLE_KEYWORDS`, and `VISUAL_PRICE_CENTS`.
 
