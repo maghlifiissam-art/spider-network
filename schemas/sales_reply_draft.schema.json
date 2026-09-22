@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://spider-network/schemas/sales_reply_draft.schema.json",
+  "title": "Sales Reply Draft (sales.v1)",
+  "type": "object",
+  "required": ["draft_id", "lead_id", "body", "approved", "send_allowed"],
+  "properties": {
+    "draft_id": {"type": "string", "minLength": 1},
+    "lead_id": {"type": "string", "minLength": 1},
+    "objection_id": {"type": ["string", "null"]},
+    "body": {"type": "string", "minLength": 1, "description": "Must not contain banned hype phrases (see BANNED_PHRASES in sales_contracts)."},
+    "approved": {"const": false, "description": "Drafts are never pre-approved; human review flips this outside the pipeline."},
+    "send_allowed": {"const": false, "description": "Automatic sending is disabled by design."}
+  },
+  "additionalProperties": false
+}

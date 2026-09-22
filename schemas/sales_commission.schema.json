@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://spider-network/schemas/sales_commission.schema.json",
+  "title": "Sales Commission Record (sales.v1)",
+  "type": "object",
+  "required": ["record_id", "lead_id", "product_sku", "gross_mad", "commission_mad", "beneficiary", "status"],
+  "properties": {
+    "record_id": {"type": "string", "minLength": 1},
+    "lead_id": {"type": "string", "minLength": 1},
+    "product_sku": {"type": "string", "minLength": 1},
+    "gross_mad": {"type": "number", "minimum": 0},
+    "commission_mad": {"type": "number", "minimum": 0, "description": "Must not exceed gross_mad (validated in sales_contracts)."},
+    "beneficiary": {"enum": ["owner", "affiliate_program"]},
+    "status": {"enum": ["pending", "paid"]}
+  },
+  "additionalProperties": false
+}

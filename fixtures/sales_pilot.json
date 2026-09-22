@@ -1,0 +1,26 @@
+{
+  "pilot": {"id": "sales-pilot-001", "title": "Labor book and permis guide sales pilot"},
+  "catalog": [
+    {"sku": "labor-book-2026", "name": "قانون الشغل المغربي 2026 - دليلك العملي", "price_mad": 30, "delivery": "email_after_payment_verification", "commission_rate": 1.0, "active": true},
+    {"sku": "permis-b-guide", "name": "دليل امتحان رخصة السياقة صنف B", "price_mad": 30, "delivery": "email_after_payment_verification", "commission_rate": 1.0, "active": true},
+    {"sku": "permis-bundle", "name": "حزمة أدلة رخصة السياقة كاملة", "price_mad": 60, "delivery": "email_after_payment_verification", "commission_rate": 1.0, "active": true},
+    {"sku": "oranuss-affiliate-slot", "name": "Oranuss affiliate products (pending catalog)", "price_mad": 0, "delivery": "affiliate_external", "commission_rate": 0.15, "active": false}
+  ],
+  "objection_scripts": [
+    {"objection_id": "price-objection", "trigger_keywords": ["غالي", "ثمن", "بزاف"], "reply_template": "فاهمك. «{product_name}» بـ{price_mad} درهم غير مرة وحدة، وفيه الجداول والنماذج الجاهزة اللي كتوفر عليك عناء البحث. واش نأكد لك الطلب؟"},
+    {"objection_id": "trust-objection", "trigger_keywords": ["نصب", "ثقة", "أمان"], "reply_template": "عندك الحق تتأكد. «{product_name}» كيوصلك بالإيميل من بعد ما نتحققو من التحويل، وما كنوعدو بلا شي حاجة ما كايناش فالكتاب. الثمن {price_mad} درهم فقط. بغيتي نشرح ليك المحتوى قبل ما تقرر؟"},
+    {"objection_id": "delivery-question", "trigger_keywords": ["كيفاش", "توصيل", "وصل"], "reply_template": "التسليم بالإيميل: من بعد ما تأكد التحويل ديال {price_mad} درهم، كيوصلك «{product_name}» PDF داخل 24 ساعة. واش نأكد الطلب؟"}
+  ],
+  "leads": [
+    {"lead_id": "lead-001", "channel": "whatsapp", "source_ref": "utm_campaign=labor-book-fb-week1&utm_medium=facebook", "product_sku": "labor-book-2026", "created_at": "2026-09-21T15:00:00Z", "name": "سعيد", "note": "سولاني على الثمن، قال ليا شوية غالي"},
+    {"lead_id": "lead-002", "channel": "tally", "source_ref": "utm_campaign=labor-book-fb-week1&utm_medium=facebook", "product_sku": "labor-book-2026", "created_at": "2026-09-21T15:20:00Z", "name": "خديجة", "note": "كيفاش كيوصلني الكتاب من بعد الأداء؟"},
+    {"lead_id": "lead-003", "channel": "whatsapp", "source_ref": "utm_campaign=permis-b-tiktok-week1&utm_medium=tiktok", "product_sku": "permis-b-guide", "created_at": "2026-09-21T16:00:00Z", "name": "يوسف", "note": "واش هادشي نصب؟ بغيت نتأكد"},
+    {"lead_id": "lead-004", "channel": "whatsapp", "source_ref": "", "product_sku": "labor-book-2026", "created_at": "2026-09-21T16:10:00Z", "name": "", "note": "lead بلا مصدر"},
+    {"lead_id": "lead-005", "channel": "web", "source_ref": "utm_campaign=oranuss-pending&utm_medium=instagram", "product_sku": "oranuss-affiliate-slot", "created_at": "2026-09-21T16:30:00Z", "name": "مريم", "note": "بغات منتجات أورانوس"}
+  ],
+  "outcomes": [
+    {"lead_id": "lead-001", "product_sku": "labor-book-2026", "status": "won", "price_mad": 30, "payment_verified": true},
+    {"lead_id": "lead-002", "product_sku": "labor-book-2026", "status": "negotiating", "price_mad": 30, "payment_verified": false},
+    {"lead_id": "lead-003", "product_sku": "permis-b-guide", "status": "lost", "price_mad": 30, "payment_verified": false}
+  ]
+}

@@ -1,0 +1,62 @@
+# Sales Spider operations config (sales.v1). Human-edited; the pipeline itself
+# stays deterministic and reads its runtime inputs from adapters/fixtures.
+# NOTHING in this file enables sending, publishing, or spending.
+
+gates:
+  auto_send: false            # hard-locked in code (ReplyDraft.send_allowed is always False)
+  auto_publish: false
+  spending_allowed: false
+  require_payment_verification: true  # a deal can only be "won" after the transfer is verified
+  human_review_per_reply: true        # every customer reply stays a draft until the user approves it
+
+products:
+  - sku: labor-book-2026
+    name: "قانون الشغل المغربي 2026 - دليلك العملي"
+    price_mad: 30
+    delivery: email_after_payment_verification   # PDF by email within 24h of verified transfer
+    commission_rate: 1.0
+    active: true
+  - sku: permis-b-guide
+    name: "دليل امتحان رخصة السياقة صنف B"
+    price_mad: 30
+    delivery: email_after_payment_verification
+    commission_rate: 1.0
+    active: true
+  - sku: permis-c-guide
+    name: "دليل رخصة السياقة صنف C"
+    price_mad: 25
+    delivery: email_after_payment_verification
+    commission_rate: 1.0
+    active: false   # pending content QA
+  - sku: permis-ec-guide
+    name: "دليل رخصة السياقة صنف EC"
+    price_mad: 25
+    delivery: email_after_payment_verification
+    commission_rate: 1.0
+    active: false   # pending content QA
+  - sku: permis-d-guide
+    name: "دليل رخصة السياقة صنف D"
+    price_mad: 25
+    delivery: email_after_payment_verification
+    commission_rate: 1.0
+    active: false   # pending content QA
+  - sku: permis-bundle
+    name: "حزمة أدلة رخصة السياقة كاملة"
+    price_mad: 60
+    delivery: email_after_payment_verification
+    commission_rate: 1.0
+    active: true
+  - sku: oranuss-affiliate-slot
+    name: "Oranuss affiliate products (catalog pending)"
+    price_mad: 0
+    delivery: affiliate_external
+    commission_rate: 0.15   # placeholder until official program terms arrive
+    active: false           # stays inactive until link, products and commissions are confirmed
+
+attribution:
+  convention: "utm_campaign + utm_medium in every posted link"
+  rule: "a lead without source_ref is rejected, never guessed"
+
+handoff:
+  delivery: secure_delivery_flow   # payment verification -> email delivery within 24h
+  customer_messages: human_approved_relay_only

@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://spider-network/schemas/sales_deal.schema.json",
+  "title": "Sales Deal Outcome (sales.v1)",
+  "type": "object",
+  "required": ["lead_id", "product_sku", "status", "price_mad", "payment_verified"],
+  "properties": {
+    "lead_id": {"type": "string", "minLength": 1},
+    "product_sku": {"type": "string", "minLength": 1},
+    "status": {"enum": ["new", "qualified", "negotiating", "won", "lost", "no_reply"]},
+    "price_mad": {"type": "number", "minimum": 0},
+    "payment_verified": {"type": "boolean"}
+  },
+  "if": {"properties": {"status": {"const": "won"}}},
+  "then": {"properties": {"payment_verified": {"const": true}}},
+  "additionalProperties": false
+}

@@ -38,6 +38,7 @@ from engineering_spider import design_part, design_project
 from electronics_spider import design_circuit
 from cloud_architect_spider import design_cloud_architecture
 from bullet_spider import MarketSpyHandoffAdapter, OfflineFixtureAdapter, run_bullet_spider
+from sales_spider import run_sales_spider
 from market_spy_spider import format_report, research_market
 
 MODEL = "llama-3.1-8b-instant"
@@ -63,7 +64,7 @@ def classify_intent(client: Groq, command: str, language: str) -> dict:
 
 Respond ONLY with a valid JSON object, no markdown fences:
 {
-  "action": "market_intelligence" | "marketing" | "book" | "comic" | "coloring_book" | "poster" | "logo" | "news_blog" | "engineering_part" | "engineering_project" | "electronics_circuit" | "cloud_architecture" | "bullet_demand_capture" | "status" | "unknown",
+  "action": "market_intelligence" | "marketing" | "book" | "comic" | "coloring_book" | "poster" | "logo" | "news_blog" | "engineering_part" | "engineering_project" | "electronics_circuit" | "cloud_architecture" | "bullet_demand_capture" | "sales_pipeline" | "status" | "unknown",
   "publish": true or false,
   "parameters": { ... }
 }
@@ -82,6 +83,7 @@ Parameters per action:
 - electronics_circuit: {"description": "..."} (LED resistor sizing, voltage divider, or battery runtime estimate)
 - cloud_architecture: {"description": "..."} (designing a backend/cloud system architecture for a product or feature)
 - bullet_demand_capture: {"topic": "...", "geography": "...", "language": "...", "signals": []} (score public/aggregate demand signals and prepare draft production briefs; signals must carry source_url and observed_at)
+- sales_pipeline: {"fixture": "sales_pilot.json"} (qualify leads and prepare reply drafts, attribution and commission records; drafts only, never sends messages)
 - status: {} (user is asking about existing products/catalog, not requesting new content)
 - unknown: {} (command unclear — ask for clarification)
 
@@ -396,6 +398,22 @@ def _run_bullet(params: dict, publish: bool) -> dict:
     }
 
 
+def _run_sales(params: dict, publish: bool) -> dict:
+    """Boss route for draft-only sales handling. Sending and publishing are always blocked."""
+    if publish:
+        return {"success": False, "message": "Sales Spider only prepares drafts; sending and publishing need separate human approval."}
+    result = run_sales_spider({"fixture": params.get("fixture", "sales_pilot.json")})
+    return {
+        "success": True,
+        "message": (
+            f"Sales Spider qualified {len(result['qualified_leads'])} lead(s), "
+            f"prepared {len(result['reply_drafts'])} reply draft(s) and "
+            f"{len(result['commissions'])} commission record(s). Nothing was sent or published."
+        ),
+        "data": result,
+    }
+
+
 def _run_status(params: dict) -> dict:
     query = params.get("query", "")
     catalog = search_catalog(query, max_results=10) if query else load_catalog()[-10:]
@@ -439,9 +457,12 @@ def handle_command(command: str, language: str = "العربية", groq_api_key:
         return _run_cloud_architecture(client, params, command)
     elif action == "bullet_demand_capture":
         return _run_bullet(params, publish)
+    elif action == "sales_pipeline":
+        return _run_sales(params, publish)
     elif action == "status":
         return _run_status(params)
     elif action == "error":
         return {"success": False, "message": f"⚠️ خطأ فالفهم: {params.get('error')}"}
     else:
         return {"success": False, "message": "🤔 مافهمتش الأمر بالضبط. جرب تعاود صياغتو بشكل أوضح (مثلاً: 'سولي كتاب على...' ولا 'ولد ملصق على...')."}
+
