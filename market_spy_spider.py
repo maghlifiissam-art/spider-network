@@ -21,6 +21,9 @@ from urllib.parse import quote
 
 import requests
 
+from connectors import aliexpress_connector as aliexpress
+from connectors import fx
+
 USER_AGENT = os.getenv("MARKET_SPY_USER_AGENT", "SpiderNetwork-MarketSpy/1.0 (+public-feed-research)")
 TIMEOUT_SECONDS = int(os.getenv("MARKET_SPY_TIMEOUT_SECONDS", "15"))
 CACHE_TTL_SECONDS = max(900, int(os.getenv("MARKET_SPY_CACHE_TTL_SECONDS", "3600")))
@@ -120,6 +123,16 @@ class Signal:
     currency: str | None = None
     first_released_at: str | None = None
     limitations: tuple[str, ...] = ()
+    commission_rate: float | None = None
+    risk_score: float | None = None
+    rank_position: int | None = None
+    rating_percent: float | None = None
+    original_price: float | None = None
+    price_mad: float | None = None
+    original_price_mad: float | None = None
+    product_url: str | None = None
+    affiliate_link: str | None = None
+    image_url: str | None = None
 
     def to_dict(self) -> dict:
         value = dataclasses.asdict(self)
@@ -300,6 +313,78 @@ def google_books_signals(query: str, country: str, fetcher: Callable | None = No
     return output
 
 
+TARGET_CURRENCY = os.getenv("MARKET_SPY_TARGET_CURRENCY", "MAD")
+
+
+def _aliexpress_risk_score(rating_percent: float | None, volume: float | None) -> float | None:
+    """Safety score (0-100, higher = lower risk) from buyer rating and sales depth.
+
+    Rating is the AliExpress positive-feedback rate. Low volume means the rating is
+    thin evidence, so it is discounted. Missing rating means unknown risk (None).
+    """
+    if rating_percent is None:
+        return None
+    depth = 1.0 if (volume or 0) >= 500 else 0.9 if (volume or 0) >= 100 else 0.75
+    return round(max(0.0, min(100.0, rating_percent)) * depth, 2)
+
+
+def aliexpress_signals(query: str, country: str, fetcher: Callable | None = None, top_n: int | None = None) -> list[Signal]:
+    """Official AliExpress Affiliate API: best sellers per ship-to country (real 30-day volume)."""
+    if not aliexpress.is_configured():
+        raise SourceUnavailable("AliExpress Affiliate API credentials are not configured (ALIEXPRESS_APP_KEY/ALIEXPRESS_APP_SECRET)")
+    get_bytes = lambda url, key: _cached_get(url, key, fetcher)
+    keywords = None if top_n else (query.strip() or None)
+    try:
+        products = aliexpress.fetch_products(country, get_bytes, page_size=50, keywords=keywords)
+    except aliexpress.AliExpressAPIError as exc:
+        raise SourceUnavailable(f"AliExpress API error: {exc}") from exc
+    observed_at = _utc_now()
+    rates: dict[str, fx.Rate] = {}
+    output: list[Signal] = []
+    for item in products:
+        price_mad = original_mad = None
+        limitations = [
+            "Volume is AliExpress-reported recent sales across all buyers, not only this country.",
+            "Commission rate is the current published rate and can change; earnings are not guaranteed.",
+        ]
+        if item.currency and item.sale_price is not None:
+            try:
+                rate = rates.get(item.currency) or fx.get_rate(item.currency, TARGET_CURRENCY, get_bytes)
+                rates[item.currency] = rate
+                price_mad = fx.convert(item.sale_price, rate)
+                original_mad = fx.convert(item.original_price, rate)
+                limitations.append(f"{TARGET_CURRENCY} price converted at {rate.value} {rate.base}->{rate.quote} ({rate.source_url}, {rate.as_of}); checkout price may differ.")
+            except (SourceUnavailable, ValueError, json.JSONDecodeError) as exc:
+                limitations.append(f"Currency conversion unavailable: {exc}")
+        output.append(Signal(
+            product=item.title,
+            source_name="AliExpress Affiliate API (hot products)" if top_n else "AliExpress Affiliate API (product search)",
+            source_url=item.product_url or aliexpress.GATEWAY_URL,
+            observed_at=observed_at,
+            geography=country.upper(),
+            metric="units sold (recent, AliExpress-reported)",
+            value=item.volume_30d,
+            unit="orders",
+            is_proxy=False,
+            confidence=0.85 if item.volume_30d is not None else 0.6,
+            category=item.category,
+            price=item.sale_price,
+            currency=item.currency,
+            limitations=tuple(limitations),
+            commission_rate=item.commission_rate,
+            risk_score=_aliexpress_risk_score(item.rating_percent, item.volume_30d),
+            rank_position=item.rank,
+            rating_percent=item.rating_percent,
+            original_price=item.original_price,
+            price_mad=price_mad,
+            original_price_mad=original_mad,
+            product_url=item.product_url,
+            affiliate_link=item.affiliate_link,
+            image_url=item.image_url,
+        ))
+    return output
+
+
 def _signal_score(signal: Signal) -> float:
     if signal.value is None:
         metric_strength = 0.25
@@ -307,6 +392,8 @@ def _signal_score(signal: Signal) -> float:
         metric_strength = max(0.0, 1.0 - (signal.value - 1.0) / 100.0)
     elif "traffic" in signal.metric:
         metric_strength = min(1.0, math.log10(max(signal.value, 1.0)) / 7.0)
+    elif "units sold" in signal.metric:
+        metric_strength = min(1.0, math.log10(max(signal.value, 1.0)) / 5.0)
     else:
         metric_strength = 0.4
     newness = 0.0
@@ -338,6 +425,14 @@ def _profit_evidence_gate(signal: Signal, market_category: str) -> dict:
         "rights_fulfillment_market_risk": None,
         "provenance": 100.0 if signal.source_url else None,
     }
+    if signal.commission_rate is not None:
+        # Affiliate listing: nothing is produced, the margin is the published commission.
+        evidence["competition"] = evidence["competition"] if evidence["competition"] is not None else _rank_competition(signal)
+        evidence["margin_potential"] = _commission_score(signal.commission_rate)
+        evidence["trend_velocity"] = _signal_score(signal) if signal.value is not None else None
+        evidence["production_cost"] = 0.0
+        evidence["production_time"] = 0.0
+        evidence["rights_fulfillment_market_risk"] = signal.risk_score
     required = tuple(evidence)
     missing = [key for key in required if evidence[key] is None]
     demand = evidence["demand_purchase_intent_proxy"]
@@ -401,6 +496,29 @@ def _category_scorecard(signal: Signal, market_category: str) -> dict:
     }
 
 
+def _commission_score(rate: float | None) -> float | None:
+    """Commission percent mapped to 0-100 (10%+ = 100)."""
+    return None if rate is None else round(min(100.0, max(0.0, rate) * 10.0), 2)
+
+
+def _rank_competition(signal: Signal) -> float | None:
+    """Position in a best-seller list: rank 1 of 50 scores ~100, rank 50 scores ~2."""
+    if signal.rank_position is None:
+        return None
+    return round(max(0.0, 100.0 - (signal.rank_position - 1) * 2.0), 2)
+
+
+def _price_fit(price_mad: float | None) -> float | None:
+    """Impulse-buy fit for social traffic: 20-400 MAD is best, very cheap or expensive scores lower."""
+    if price_mad is None:
+        return None
+    if 20 <= price_mad <= 400:
+        return 100.0
+    if price_mad < 20:
+        return 70.0
+    return round(max(30.0, 100.0 - (price_mad - 400) / 20.0), 2)
+
+
 def _affiliate_scorecard(signal: Signal, signals: list[Signal]) -> dict:
     """Transparent affiliate gate. Missing commercial inputs can never become a recommendation."""
     matching = [s for s in signals if s.product.casefold() == signal.product.casefold()]
@@ -411,24 +529,37 @@ def _affiliate_scorecard(signal: Signal, signals: list[Signal]) -> dict:
     ranks = [s.value for s in matching if s.value is not None and "rank" in s.metric]
     if ranks:
         competition = round(max(0.0, 100.0 - min(ranks)), 2)
+    if competition is None:
+        competition = next((c for c in (_rank_competition(s) for s in matching) if c is not None), None)
     price = next((s.price for s in matching if s.price is not None), None)
+    price_mad = next((s.price_mad for s in matching if s.price_mad is not None), None)
+    commission_rate = next((s.commission_rate for s in matching if s.commission_rate is not None), None)
+    risk = next((s.risk_score for s in matching if s.risk_score is not None), None)
     components = {
         "demand_momentum": demand,
         "geography": 100.0 if signal.geography else None,
         "competition": competition,
         "price": price,
-        "commission": None,
+        "commission": commission_rate,
         "freshness": freshness,
         "provenance": provenance,
         "confidence": round(100 * signal.confidence, 2),
-        "risk": None,
+        "risk": risk,
     }
     required = ("demand_momentum", "geography", "competition", "price", "commission", "freshness", "provenance", "confidence", "risk")
     missing = [key for key in required if components[key] is None]
+    normalized = dict(components)
+    if not missing:
+        normalized["commission"] = _commission_score(commission_rate)
+        # Raw price is not a score; use MAD price fit when known, otherwise neutral.
+        normalized["price"] = _price_fit(price_mad) if price_mad is not None else 50.0
     return {
         "eligible": not missing,
-        "recommendation_score": None if missing else round(sum(float(components[k]) for k in required) / len(required), 2),
+        "recommendation_score": None if missing else round(sum(float(normalized[k]) for k in required) / len(required), 2),
         "components": components,
+        "normalized_components": None if missing else normalized,
+        "commission_rate_percent": commission_rate,
+        "price_mad": price_mad,
         "missing_required_data": missing,
         "rule": "No affiliate recommendation or publish brief when any required component is missing.",
     }
@@ -463,6 +594,17 @@ def build_report(query: str, geography: str, signals: list[Signal], errors: list
             "source_urls": sorted({s.source_url for s in signals if s.product.casefold() == key}),
             "limitations": sorted({note for s in signals if s.product.casefold() == key for note in s.limitations}),
             "feeds": ["Affiliate Spider", "Digital Products Spider"],
+            "price": signal.price,
+            "currency": signal.currency,
+            "price_mad": signal.price_mad,
+            "original_price_mad": signal.original_price_mad,
+            "sales_volume": signal.value if "units sold" in signal.metric else None,
+            "rating_percent": signal.rating_percent,
+            "commission_rate_percent": signal.commission_rate,
+            "product_url": signal.product_url,
+            "affiliate_link": signal.affiliate_link,
+            "image_url": signal.image_url,
+            "rank_position": signal.rank_position,
         })
     return {
         "query": query,
@@ -512,22 +654,44 @@ def build_report(query: str, geography: str, signals: list[Signal], errors: list
     }
 
 
-def research_market(query: str, geography: str = "US", fetcher: Callable | None = None, market_category: str | None = None) -> dict:
-    """Collect source-backed signals. Partial source failure remains explicit in the report."""
+def research_market(query: str, geography: str = "US", fetcher: Callable | None = None, market_category: str | None = None,
+                    top_n: int | None = None) -> dict:
+    """Collect source-backed signals. Partial source failure remains explicit in the report.
+
+    ``top_n`` switches to best-sellers-per-geography mode: the AliExpress Affiliate API
+    hot-product list for ``geography`` (no keyword filter), ranked and cut to N.
+    """
     signals: list[Signal] = []
     errors: list[str] = []
-    resolved_category = classify_market_category(query, market_category)
-    sources = [("google_trends", google_trends_signals)]
-    if resolved_category == "digital_product":
-        sources.append(("apple_charts", apple_chart_signals))
-    elif resolved_category == "ebook":
-        sources.append(("google_books", google_books_signals))
+    if top_n:
+        resolved_category = market_category if market_category in MARKET_CATEGORY_PROFILES else "physical_product"
+        sources = [("aliexpress", lambda q, g, f: aliexpress_signals(q, g, f, top_n=top_n))]
+    else:
+        resolved_category = classify_market_category(query, market_category)
+        sources = [("google_trends", google_trends_signals)]
+        if resolved_category == "digital_product":
+            sources.append(("apple_charts", apple_chart_signals))
+        elif resolved_category == "ebook":
+            sources.append(("google_books", google_books_signals))
+        elif resolved_category == "physical_product" and aliexpress.is_configured():
+            sources.append(("aliexpress", aliexpress_signals))
     for name, source in sources:
         try:
             signals.extend(source(query, geography, fetcher))
         except (SourceUnavailable, ValueError, ET.ParseError, json.JSONDecodeError) as exc:
             errors.append(f"{name}: {exc}")
-    return build_report(query, geography, signals, errors, resolved_category)
+    report = build_report(query, geography, signals, errors, resolved_category)
+    if top_n:
+        report["mode"] = "top_n_per_geography"
+        report["top_n"] = top_n
+        report["opportunities"] = report["opportunities"][:top_n]
+        report["price_summary"]["currency_note"] = f"price is in the source currency; price_mad is converted to {TARGET_CURRENCY} with the rate named in each item's limitations."
+    return report
+
+
+def top_products_by_geography(geographies: Iterable[str], n: int = 10, fetcher: Callable | None = None) -> dict[str, dict]:
+    """Top N best sellers for each geography (read-only)."""
+    return {geo.upper(): research_market("", geo, fetcher, top_n=n) for geo in geographies}
 
 
 def format_report(report: dict) -> str:
@@ -548,6 +712,10 @@ def format_report(report: dict) -> str:
             f"- Metric/proxy: {item['metric_or_proxy']}",
             f"- Confidence: {item['confidence']:.0%}",
             f"- Verified sales: {'yes' if item['is_verified_sales'] else 'no'}",
+            *([f"- Price: {item['price_mad']} MAD" + (f" (was {item['original_price_mad']} MAD)" if item.get('original_price_mad') and item['original_price_mad'] != item['price_mad'] else "")] if item.get("price_mad") is not None else []),
+            *([f"- Sales volume: {int(item['sales_volume'])} | rating: {item.get('rating_percent')}% | commission: {item.get('commission_rate_percent')}%"] if item.get("sales_volume") is not None else []),
+            *([f"- Affiliate score: {item['affiliate_scorecard']['recommendation_score']}"] if item["affiliate_scorecard"]["eligible"] else []),
+            *([f"- Affiliate link: {item['affiliate_link']}"] if item.get("affiliate_link") else []),
             f"- Sources: {', '.join(item['source_urls'])}",
             f"- Limitations: {'; '.join(item['limitations'])}",
             "",
@@ -559,12 +727,13 @@ def format_report(report: dict) -> str:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Source-backed market intelligence (read-only)")
-    parser.add_argument("query", help="Product, field, or niche")
+    parser.add_argument("query", nargs="?", default="", help="Product, field, or niche (optional with --top)")
     parser.add_argument("--geography", default="US", help="ISO country code, e.g. US, FR, MA")
     parser.add_argument("--category", choices=sorted(MARKET_CATEGORY_PROFILES), help="Optional explicit market category")
+    parser.add_argument("--top", type=int, default=None, help="Best-sellers mode: top N products for --geography (AliExpress Affiliate API)")
     parser.add_argument("--json", action="store_true", help="Print structured JSON")
     args = parser.parse_args()
-    report = research_market(args.query, args.geography, market_category=args.category)
+    report = research_market(args.query, args.geography, market_category=args.category, top_n=args.top)
     print(json.dumps(report, ensure_ascii=False, indent=2) if args.json else format_report(report))
 
 

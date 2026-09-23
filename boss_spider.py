@@ -70,7 +70,7 @@ Respond ONLY with a valid JSON object, no markdown fences:
 }
 
 Parameters per action:
-- market_intelligence: {"query": "product, field, or niche", "geography": "ISO country code", "market_category": "digital_product"|"ebook"|"design_asset"|"wall_art_decor"|"sticker"|"logo"|"children_coloring_book"|"illustrated_story"|"physical_product"} (research-only; never publish)
+- market_intelligence: {"query": "product, field, or niche", "geography": "ISO country code", "market_category": "digital_product"|"ebook"|"design_asset"|"wall_art_decor"|"sticker"|"logo"|"children_coloring_book"|"illustrated_story"|"physical_product", "top_n": optional integer - best-sellers-per-geography mode (AliExpress Affiliate API), e.g. 10} (research-only; never publish)
 - marketing: {"agent_type": "affiliate"|"media"|"digital", "topic": "..."}
 - book: {"topic": "...", "genre": "...", "chapters": <int, default 5>, "price_cents": <int, default 500>}
 - comic: {"mode": "prompt"|"script", "topic": "...", "user_script": "...", "panels": <int, default 10>, "price_cents": <int, default 400>}
@@ -370,7 +370,15 @@ def _run_market_intelligence(params: dict, command: str) -> dict:
     """Read-only public-signal research. No commerce or representation effects."""
     query = params.get("query") or params.get("topic") or command
     geography = (params.get("geography") or "US").upper()
-    report = research_market(query, geography, market_category=params.get("market_category"))
+    top_n = params.get("top_n")
+    if top_n is None and str(params.get("mode", "")).lower() in ("top_n", "top_n_per_geography", "best_sellers"):
+        top_n = 10
+    if top_n:
+        top_n = max(1, min(int(top_n), 50))
+        report = research_market("", geography, market_category=params.get("market_category"), top_n=top_n)
+        query = f"top {top_n} best sellers"
+    else:
+        report = research_market(query, geography, market_category=params.get("market_category"))
     log_operation("market_spy", "success", message=f"{query} ({geography}): {len(report['signals'])} signals", product_name=query[:60])
     return {"success": True, "message": format_report(report), "data": report}
 

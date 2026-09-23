@@ -94,6 +94,9 @@ Never commit real values. Use local environment variables, `.streamlit/secrets.t
 | `YOUTUBE_CLIENT_ID`, `YOUTUBE_CLIENT_SECRET`, `YOUTUBE_REFRESH_TOKEN` | `publishers/youtube_publisher.py` | Publishing to YouTube via Data API |
 | `META_PAGE_ACCESS_TOKEN`, `META_PAGE_ID`, `META_IG_USER_ID` | `publishers/meta_publisher.py` | Posting to the Facebook Page / Instagram |
 | `TIKTOK_ACCESS_TOKEN`, `TIKTOK_REFRESH_TOKEN` | `publishers/tiktok_publisher.py` | Sending videos to TikTok drafts/inbox |
+| `ALIEXPRESS_APP_KEY`, `ALIEXPRESS_APP_SECRET` | `connectors/aliexpress_connector.py` | Market Spy best sellers via the AliExpress Affiliate API |
+| `ALIEXPRESS_TRACKING_ID` | `connectors/aliexpress_connector.py` | Tagging generated affiliate links (Portals tracking ID) |
+| `MARKET_SPY_FX_OVERRIDE` | `connectors/fx.py` | Optional pinned rate for offline runs, e.g. `USD:MAD=10.0` |
 
 The publishing workflows also read non-secret configuration such as `BOOK_TOPIC`, `BOOK_GENRE`, `BOOK_LANGUAGE`, `BOOK_CHAPTERS`, `BOOK_PRICE_CENTS`, `COMIC_TOPIC`, `COMIC_MODE`, `COMIC_LANGUAGE`, `COMIC_PANELS`, `COMIC_PRICE_CENTS`, `COLORING_THEME`, `COLORING_PAGES`, `COLORING_PRICE_CENTS`, `VISUAL_TYPE`, `VISUAL_TOPIC`, `VISUAL_STYLE`, `VISUAL_BRAND_NAME`, `VISUAL_STYLE_KEYWORDS`, and `VISUAL_PRICE_CENTS`.
 
@@ -102,6 +105,28 @@ For local Streamlit use, create `.streamlit/secrets.toml` only on your machine:
 ```toml
 GROQ_API_KEY = "replace-with-your-own-key"
 ```
+
+## Market Spy: AliExpress connector and Top N mode
+
+`connectors/aliexpress_connector.py` reads the official AliExpress Affiliate API
+(`aliexpress.affiliate.hotproduct.query`, `aliexpress.affiliate.product.query`,
+`aliexpress.affiliate.link.generate`) through the signed `/sync` gateway. It is read-only:
+no purchases, publishing or account changes. Credentials come only from environment
+variables; without them the source is reported as missing and no numbers are invented.
+
+Each product carries price (converted to MAD with the rate and source shown), recent
+sales volume, positive-feedback rating, published commission rate and affiliate link.
+`_affiliate_scorecard` scores commission, risk (rating weighted by sales depth) and price fit.
+
+Top N best sellers per country:
+
+```bash
+export ALIEXPRESS_APP_KEY=...  ALIEXPRESS_APP_SECRET=...  ALIEXPRESS_TRACKING_ID=...
+python3 market_spy_spider.py --geography MA --top 10
+```
+
+Boss route: `{"action": "market_intelligence", "params": {"geography": "MA", "top_n": 10}}`.
+Tests use mock data only: `python3 -m pytest tests/test_aliexpress_connector.py`.
 
 ## Safe validation
 
