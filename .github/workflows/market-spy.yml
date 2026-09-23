@@ -1,0 +1,59 @@
+# Market Spy (المتجسس) - Top 10 best-sellers per geography via AliExpress Affiliate API.
+# Runs daily and on demand. Reads credentials from repo secrets:
+#   ALIEXPRESS_APP_KEY, ALIEXPRESS_APP_SECRET (add them once the developer app exists).
+# Without secrets the spider still runs and reports "credentials not configured" - exit 0.
+name: Market Spy - Top 10
+
+on:
+  workflow_dispatch:
+    inputs:
+      geography:
+        description: "ISO country code (MA, US, FR...)"
+        required: false
+        default: "MA"
+      top:
+        description: "Number of products"
+        required: false
+        default: "10"
+  schedule:
+    - cron: "23 5 * * *"   # daily, ~06:23 Morocco time
+
+permissions:
+  contents: read
+
+jobs:
+  market-spy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run Market Spy Top 10
+        env:
+          ALIEXPRESS_APP_KEY: ${{ secrets.ALIEXPRESS_APP_KEY }}
+          ALIEXPRESS_APP_SECRET: ${{ secrets.ALIEXPRESS_APP_SECRET }}
+          ALIEXPRESS_TRACKING_ID: ${{ secrets.ALIEXPRESS_TRACKING_ID }}
+          GEO: ${{ inputs.geography || 'MA' }}
+          TOPN: ${{ inputs.top || '10' }}
+        run: |
+          set -e
+          echo "# Market Spy Top ${TOPN} - ${GEO}" >> "$GITHUB_STEP_SUMMARY"
+          echo "Run: $(date -u +'%Y-%m-%d %H:%M UTC')" >> "$GITHUB_STEP_SUMMARY"
+          python3 market_spy_spider.py --geography "$GEO" --top "$TOPN" --json > "market_spy_${GEO}_top${TOPN}.json"
+          # Second run hits the local cache (TTL 1h), so no duplicate API cost.
+          python3 market_spy_spider.py --geography "$GEO" --top "$TOPN" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload JSON report
+        uses: actions/upload-artifact@v4
+        with:
+          name: market-spy-${{ inputs.geography || 'MA' }}-top${{ inputs.top || '10' }}
+          path: market_spy_*.json
+          if-no-files-found: ignore
