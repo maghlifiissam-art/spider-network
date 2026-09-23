@@ -20,6 +20,8 @@ This repository is an early, untested integration workspace. Start with the loca
 - `engineering_spider.py`, `electronics_spider.py`, `cloud_architect_spider.py`: technical design helpers.
 - `bullet_spider.py`: offline-first demand-capture scoring and draft production briefs from public/aggregate signals.
 - `publish_spider.py` + `publishers/`: fail-closed social publishing via official APIs (YouTube Data, Meta Graph, TikTok Content Posting). See `README_PUBLISH.md`.
+- `director_spider.py`: directing specialist (shot lists, rhythm, lighting, transitions, VFX/sound cues) for Nexa Stories, Funimal and other video channels; hands plans to Media Spider. See `README_MEDIA.md`.
+- `connectors/`: read-only data connectors (AliExpress Affiliate API, MAD currency conversion) used by Market Spy.
 - `schemas/bullet_*.schema.json`: source-backed opportunity and production-brief contracts.
 - `catalog.py`, `ops_log.py`: local JSON catalog and operation log.
 - `webhook_server.py`: Shopify paid-order webhook and email delivery service.
