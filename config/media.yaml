@@ -11,3 +11,13 @@ phone_app_dependency: false
 publish_allowed: false
 required_stages: [trend_scout, story_writer, fact_checker, visual_director, voice_sound, editor, rights_qa]
 no_go_on: [missing_source, missing_confidence, missing_observed_at, rights_unknown, consistency_failed, arabic_visual_inspection_failed]
+video_pipeline:
+  contract_version: media.video.v1
+  scene_count: 10
+  planning_module: media_video_pipeline.py
+  mode: private_packet_manual_handoff
+  provider_generation_automatic: false
+  commercial_rights_fail_closed: true
+  elevenlabs_free_publishable: false
+  mobile_editor: capcut_android
+  extension_required: false

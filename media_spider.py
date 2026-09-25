@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 from media_contracts import EvidenceClaim, MediaHandoff, QAGate
+from media_video_pipeline import build_packet
 
 STAGES = ("trend_scout","story_writer","fact_checker","visual_director","voice_sound","editor","rights_qa")
 
@@ -17,6 +18,11 @@ class MediaSpider:
     def __init__(self, adapter=None, state_dir: str | Path = "state/media"):
         self.adapter = adapter or OfflineAdapter()
         self.state_dir = Path(state_dir)
+    def plan_video(self, title: str, story: str, *, story_source: str,
+                   story_owner_confirmed: bool = False) -> dict:
+        """Prepare a private ten-scene packet; never write source stories to public code."""
+        return build_packet(title, story, story_source=story_source,
+                            story_owner_confirmed=story_owner_confirmed)
     def run_pilot(self, fixture="sayf_pilot.json") -> dict:
         spec = self.adapter.load(fixture)
         claims = [EvidenceClaim(**c) for c in spec["claims"]]
@@ -32,4 +38,9 @@ class MediaSpider:
 
 def route_media(command: dict, adapter=None) -> dict:
     if command.get("domain") != "media": return {"accepted":False,"reason":"wrong_route"}
-    return MediaSpider(adapter=adapter).run_pilot(command.get("fixture", "sayf_pilot.json"))
+    spider = MediaSpider(adapter=adapter)
+    if command.get("action") == "plan_video":
+        return spider.plan_video(command.get("title", ""), command.get("story", ""),
+                                 story_source=command.get("story_source", ""),
+                                 story_owner_confirmed=command.get("story_owner_confirmed", False))
+    return spider.run_pilot(command.get("fixture", "sayf_pilot.json"))
