@@ -21,12 +21,13 @@ import os
 import requests
 
 API_BASE = "https://api.gumroad.com/v2"
-ACCESS_TOKEN = os.environ.get("GUMROAD_ACCESS_TOKEN", "")
+def access_token() -> str:
+    return os.environ.get("GUMROAD_ACCESS_TOKEN", "")
 CHUNK_SIZE = 100 * 1024 * 1024  # 100 MB — نفس تقسيم Gumroad
 
 
 def _auth_params(extra: dict | None = None) -> dict:
-    params = {"access_token": ACCESS_TOKEN}
+    params = {"access_token": access_token()}
     if extra:
         params.update(extra)
     return params
@@ -39,7 +40,7 @@ def upload_file_to_gumroad(file_path: str) -> dict:
     """
     كيرفع ملف لـ Gumroad ويرجع dict: {"success": bool, "file_url": str|None, "error": str|None}
     """
-    if not ACCESS_TOKEN:
+    if not access_token():
         return {"success": False, "file_url": None, "error": "GUMROAD_ACCESS_TOKEN ناقص."}
 
     filename = os.path.basename(file_path)
@@ -101,7 +102,7 @@ def create_product(name: str, price_cents: int, file_url: str, description_html:
     native_type: digital / course / ebook / membership / bundle ... (ثابت، ما يتبدلش من بعد)
     price_cents: الثمن بالسنتيم — 500 = $5.00
     """
-    if not ACCESS_TOKEN:
+    if not access_token():
         return {"success": False, "product_id": None, "short_url": None, "error": "GUMROAD_ACCESS_TOKEN ناقص."}
 
     data = {
@@ -111,12 +112,18 @@ def create_product(name: str, price_cents: int, file_url: str, description_html:
         "price_currency_type": currency,
         "description": description_html,
         "files[][url]": file_url,
+        "draft": "true",
     }
 
     try:
         resp = requests.post(f"{API_BASE}/products", data=_auth_params(data), timeout=30)
         resp.raise_for_status()
-        product = resp.json()["product"]
+        payload = resp.json()
+        product = payload.get("product") or {}
+        if not payload.get("success") or not product.get("id"):
+            return {"success": False, "product_id": None, "short_url": None, "error": payload.get("message", "Product create failed")}
+        if product.get("published"):
+            return {"success": False, "product_id": product["id"], "short_url": product.get("short_url"), "error": "Expected draft but product published unexpectedly; inspect immediately"}
         return {"success": True, "product_id": product["id"], "short_url": product.get("short_url"), "error": None}
     except requests.exceptions.RequestException as e:
         return {"success": False, "product_id": None, "short_url": None, "error": str(e)}
@@ -125,12 +132,34 @@ def create_product(name: str, price_cents: int, file_url: str, description_html:
 # ---------------------------------------------------------------------------
 # الخطوة 3: نشر المنتج — من هنا كيولي البيع والتسليم أوتوماتيكي بالكامل
 # ---------------------------------------------------------------------------
-def publish_product(product_id: str) -> dict:
+def inspect_product(product_id: str) -> dict:
+    """Read actual product state, including attached delivery files."""
     try:
-        resp = requests.put(f"{API_BASE}/products/{product_id}/enable", data=_auth_params(), timeout=30)
+        resp = requests.get(f"{API_BASE}/products/{product_id}", params=_auth_params(), timeout=30)
         resp.raise_for_status()
+        payload = resp.json()
+        if not payload.get("success"):
+            return {"success": False, "error": payload.get("message", "Readback failed")}
+        return {"success": True, "product": payload.get("product", {})}
+    except (requests.exceptions.RequestException, ValueError) as e:
+        return {"success": False, "error": str(e)}
+
+
+def publish_product(product_id: str) -> dict:
+    """POST is the documented enable method, not PUT. Confirm published state."""
+    if not access_token():
+        return {"success": False, "error": "GUMROAD_ACCESS_TOKEN missing"}
+    try:
+        resp = requests.post(f"{API_BASE}/products/{product_id}/enable", data=_auth_params(), timeout=30)
+        resp.raise_for_status()
+        payload = resp.json()
+        if not payload.get("success"):
+            return {"success": False, "error": payload.get("message", "Enable rejected")}
+        actual = inspect_product(product_id)
+        if not actual["success"] or not actual["product"].get("published"):
+            return {"success": False, "error": "Publication could not be verified on readback"}
         return {"success": True, "error": None}
-    except requests.exceptions.RequestException as e:
+    except (requests.exceptions.RequestException, ValueError) as e:
         return {"success": False, "error": str(e)}
 
 
@@ -157,6 +186,10 @@ def publish_book(file_path: str, name: str, price_cents: int, description_html: 
     if not product["success"]:
         return {"success": False, "buy_link": None, "product_id": None, "error": f"فشل إنشاء المنتج: {product['error']}"}
 
+    draft = inspect_product(product["product_id"])
+    if not draft["success"] or not draft["product"].get("files"):
+        return {"success": False, "buy_link": None, "product_id": product["product_id"],
+                "error": "Draft file attachment not verified; left unpublished"}
     publish = publish_product(product["product_id"])
     if not publish["success"]:
         return {
