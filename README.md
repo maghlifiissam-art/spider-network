@@ -95,7 +95,7 @@ Never commit real values. Use local environment variables, `.streamlit/secrets.t
 | `WHATSAPP_VERIFY_TOKEN` | `whatsapp_bot.py` | Verifying the webhook subscription |
 | `YOUTUBE_CLIENT_ID`, `YOUTUBE_CLIENT_SECRET`, `YOUTUBE_REFRESH_TOKEN` | `publishers/youtube_publisher.py` | Publishing to YouTube via Data API |
 | `META_PAGE_ACCESS_TOKEN`, `META_PAGE_ID`, `META_IG_USER_ID` | `publishers/meta_publisher.py` | Posting to the Facebook Page / Instagram |
-| `TIKTOK_ACCESS_TOKEN`, `TIKTOK_REFRESH_TOKEN` | `publishers/tiktok_publisher.py` | Sending videos to TikTok drafts/inbox |
+| `TIKTOK_TOKEN_FILE` (private persistent storage), `TIKTOK_EXPECTED_OPEN_ID` | `publishers/tiktok_publisher.py` | TikTok inbox prototype, see TIKTOK_SETUP.md; not live |
 | `ALIEXPRESS_APP_KEY`, `ALIEXPRESS_APP_SECRET` | `connectors/aliexpress_connector.py` | Market Spy best sellers via the AliExpress Affiliate API |
 | `ALIEXPRESS_TRACKING_ID` | `connectors/aliexpress_connector.py` | Tagging generated affiliate links (Portals tracking ID) |
 | `MARKET_SPY_FX_OVERRIDE` | `connectors/fx.py` | Optional pinned rate for offline runs, e.g. `USD:MAD=10.0` |
