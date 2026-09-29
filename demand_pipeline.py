@@ -66,7 +66,8 @@ def run(geography="US", themes=THEMES):
         except (SourceUnavailable, ValueError, requests.RequestException) as exc:
             global_report = build_report(query, "global", [], market_category=category)
             global_error = str(exc)
-        # Market Spy handoffs preserve no-go gates. Bullet cannot approve a proxy by itself.
+        # Market Spy handoffs preserve factual no-go assessments. Experimental
+        # briefs are separate and never claim verified product demand.
         bullet = run_bullet_spider({}, [MarketSpyHandoffAdapter(local), MarketSpyHandoffAdapter(global_report)], limit=10)
         rows.append({
             "theme": query, "category": category,
@@ -76,11 +77,30 @@ def run(geography="US", themes=THEMES):
             "ranked_research_candidates": local["opportunities"][:10] + global_report["opportunities"][:5],
             "bullet_assessments": bullet["opportunities"],
             "draft_briefs": bullet["briefs"],
+            "experimental_briefs": [experimental_brief(item, category) for item in
+                                    global_report["opportunities"][:1]],
         })
+    rows.sort(key=lambda row: -max((signal.get("value") or 0 for signal in row["global_language_proxy_signals"]), default=0))
     return {
         "requested_geography": geography, "observed_at": datetime.now(timezone.utc).isoformat(),
         "themes": rows,
-        "disclaimer": "Public search/chart/catalog and global Wikipedia proxies are not sales, buyers, verified purchase intent, or local market proof. Candidates are research leads, not product recommendations. No publication or individual targeting.",
+        "disclaimer": "Global Wikipedia readership and public search proxies are not buyer intent, sales, or US demand. Experimental topic briefs may move quickly to rights/quality review, but are not verified winners. This workflow does not publish or target people.",
+    }
+
+
+def experimental_brief(candidate, category):
+    """A fast research-to-production handoff, not evidence of purchase intent."""
+    return {
+        "topic": candidate["product"],
+        "geography": candidate["geography"],
+        "category": category,
+        "source_urls": candidate["source_urls"],
+        "metric_or_proxy": candidate["metric_or_proxy"],
+        "evidence_label": "LOW CONFIDENCE: broad global informational readership only; no local product demand or sales evidence",
+        "priority_basis": "relative article views within four preselected themes only, not likelihood of sales",
+        "status": "experimental_production_handoff_requires_rights_and_quality_review",
+        "instructions": "Narrow to an original useful product, check sources and rights, then publish through the approved product workflow if quality and legal review pass. Do not claim demand or sales proven by this signal.",
+        "publish": False,
     }
 
 
@@ -93,7 +113,9 @@ def digest(report):
             lines.append("- No source-backed research lead found. No demand claim.")
         for item in theme["ranked_research_candidates"][:5]:
             lines.append(f"- Research lead ({item['geography']}): {item['product']} | proxy score {item['opportunity_score']}/100 | {item['metric_or_proxy']} | {', '.join(item['source_urls'])}")
-        lines.append(f"- Bullet: {len(theme['bullet_assessments'])} assessed, {len(theme['draft_briefs'])} gated briefs. Nothing published.")
+        for brief in theme["experimental_briefs"]:
+            lines.append(f"- Experimental brief for production: {brief['topic']} | {brief['evidence_label']} | {brief['status']}")
+        lines.append(f"- Bullet: {len(theme['bullet_assessments'])} factual no-go assessments, {len(theme['draft_briefs'])} fully qualified briefs; {len(theme['experimental_briefs'])} low-confidence briefs for rights/quality review. Nothing published here.")
         lines.append("")
     return "\n".join(lines)
 
