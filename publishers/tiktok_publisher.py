@@ -1,16 +1,10 @@
-"""
-tiktok_publisher.py — النشر على تيكتوك بالـ Content Posting API الرسمي
-------------------------------------------------------------------
-- الوضع الافتراضي "draft": كيصيفط الفيديو + النص لمسودات/inbox ديال تيكتوك،
-  وعصام كيكمل بالنشر من التطبيق بضغطة وحدة. هاد المسار كيخدم بلا audit.
-- الوضع "direct": نشر مباشر، ولكن طالما التطبيق ماشي مُدقق TikTok كيحبس
-  المحتوى فـ SELF_ONLY (خاص). كنفعلوه غير ملي توافق TikTok على الـ audit.
-  بدلو فـ config/publish.yaml (tiktok_mode).
+"""TikTok inbox upload prototype; public direct posting is disabled pending review.
 
-الإعداد (مرة وحدة): شوف scripts/auth_tiktok.py — كيعطيك:
-  TIKTOK_ACCESS_TOKEN / TIKTOK_REFRESH_TOKEN
+See TIKTOK_SETUP.md. An API upload is not a verified public post.
 """
 from __future__ import annotations
+
+from urllib.parse import urlparse
 
 import os
 import time
@@ -53,26 +47,29 @@ def _caption(job: PublishJob) -> str:
 
 
 def publish(job: PublishJob, mode: str = "draft", dry_run: bool = True) -> PublishReceipt:
-    """mode='draft': للمسودات (inbox). mode='direct': نشر مباشر (خاص بالحسابات المدققة)."""
+    """Only inbox uploads are implemented; direct public publishing is disabled."""
     if dry_run:
         return PublishReceipt(job.job_id, "tiktok", "dry_run",
                               detail=f"dry_run ({mode}): ما تنشر والو", privacy_state=mode,
                               campaign_id=job.campaign_id)
+    if mode != "draft":
+        return PublishReceipt(job.job_id, "tiktok", "failed",
+                              detail="direct publishing disabled pending TikTok audit, creator privacy selection and status verification",
+                              campaign_id=job.campaign_id)
     try:
         token = _token()
         headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
+        if not job.video_path.lower().endswith(".mp4"):
+            return PublishReceipt(job.job_id, "tiktok", "failed", detail="only MP4 is supported by this adapter",
+                                  campaign_id=job.campaign_id)
         size = os.path.getsize(job.video_path)
-        if mode not in ("draft", "direct"):
-            return PublishReceipt(job.job_id, "tiktok", "failed", detail="unknown TikTok mode", campaign_id=job.campaign_id)
-        if mode == "draft":
-            init_url = f"{API}/post/publish/inbox/video/init/"
-            body = {"source_info": {"source": "FILE_UPLOAD", "video_size": size,
-                                    "chunk_size": size, "total_chunk_count": 1}}
-        else:  # direct
-            init_url = f"{API}/post/publish/video/init/"
-            body = {"post_info": {"title": _caption(job), "privacy_level": "SELF_ONLY"},
-                    "source_info": {"source": "FILE_UPLOAD", "video_size": size,
-                                    "chunk_size": size, "total_chunk_count": 1}}
+        if size <= 0 or size > 64 * 1024 * 1024:
+            return PublishReceipt(job.job_id, "tiktok", "failed",
+                                  detail="single-chunk prototype supports only 1-64 MiB; no upload attempted",
+                                  campaign_id=job.campaign_id)
+        init_url = f"{API}/post/publish/inbox/video/init/"
+        body = {"source_info": {"source": "FILE_UPLOAD", "video_size": size,
+                                "chunk_size": size, "total_chunk_count": 1}}
         init_response = requests.post(init_url, headers=headers, json=body, timeout=60)
         init_response.raise_for_status()
         init = init_response.json()
@@ -81,8 +78,13 @@ def publish(job: PublishJob, mode: str = "draft", dry_run: bool = True) -> Publi
             return PublishReceipt(job.job_id, "tiktok", "failed", detail=str(init.get("error", {}))[:500],
                                   campaign_id=job.campaign_id)
         upload_url = data.get("upload_url", "")
-        if not upload_url:
-            return PublishReceipt(job.job_id, "tiktok", "failed", detail=str(init)[:500],
+        publish_id = data.get("publish_id", "")
+        if not publish_id:
+            return PublishReceipt(job.job_id, "tiktok", "failed", detail="missing publish_id; no upload attempted",
+                                  campaign_id=job.campaign_id)
+        parsed = urlparse(upload_url)
+        if parsed.scheme != "https" or parsed.hostname not in ("open-upload.tiktokapis.com", "upload.us.tiktokapis.com"):
+            return PublishReceipt(job.job_id, "tiktok", "failed", detail="unexpected TikTok upload host",
                                   campaign_id=job.campaign_id)
         with open(job.video_path, "rb") as fh:
             up = requests.put(upload_url, data=fh.read(), timeout=600,
@@ -92,15 +94,10 @@ def publish(job: PublishJob, mode: str = "draft", dry_run: bool = True) -> Publi
         if up.status_code not in (200, 201):
             return PublishReceipt(job.job_id, "tiktok", "failed",
                                   detail=f"upload http {up.status_code}", campaign_id=job.campaign_id)
-        publish_id = data.get("publish_id", "")
         # A successful upload is processing, not a post. Caller tracks status by publish_id.
-        if mode == "draft":
-            return PublishReceipt(job.job_id, "tiktok", "draft_ready",
-                                  detail=f"inbox upload submitted; publish_id={publish_id}; creator must finish in app",
-                                  privacy_state="draft", campaign_id=job.campaign_id)
-        return PublishReceipt(job.job_id, "tiktok", "pending_audit",
-                              detail=f"private direct upload submitted; publish_id={publish_id}; confirm via status endpoint",
-                              privacy_state="self_only", campaign_id=job.campaign_id)
+        return PublishReceipt(job.job_id, "tiktok", "draft_ready",
+                              detail=f"inbox upload submitted; publish_id={publish_id}; creator must finish in app",
+                              privacy_state="draft", campaign_id=job.campaign_id)
     except Exception as exc:
-        return PublishReceipt(job.job_id, "tiktok", "failed", detail=str(exc)[:500],
+        return PublishReceipt(job.job_id, "tiktok", "failed", detail=f"upload outcome uncertain: {type(exc).__name__}; do not retry blindly",
                               campaign_id=job.campaign_id)
