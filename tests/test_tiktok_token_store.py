@@ -33,3 +33,16 @@ class TikTokTokenTests(unittest.TestCase):
         with patch.dict(os.environ, {"TIKTOK_ACCESS_TOKEN": "stale"}, clear=True):
             with self.assertRaises(RuntimeError):
                 tiktok_publisher._token()
+
+class TikTokSafetyTests(unittest.TestCase):
+    def test_direct_mode_never_calls_api(self):
+        from publish_contracts import PublishJob
+        job = PublishJob("j", "r", "/nonexistent.mp4", "title", "desc", ["tiktok"])
+        with patch.object(tiktok_publisher.requests, "post") as post:
+            receipt = tiktok_publisher.publish(job, mode="direct", dry_run=False)
+            self.assertEqual(receipt.status, "failed")
+            post.assert_not_called()
+
+    def test_unsafe_oauth_bootstrap_retired(self):
+        from scripts import auth_tiktok
+        self.assertEqual(auth_tiktok.main(), 1)
