@@ -25,7 +25,7 @@ import json
 import subprocess
 from groq import Groq
 
-MODEL = "llama-3.1-8b-instant"
+MODEL = os.environ.get("GROQ_MODEL", "openai/gpt-oss-120b")
 
 # ---------------------------------------------------------------------------
 # قاعدة بيانات مواد حقيقية (خواص ميكانيكية معروفة، ماشي مختلقة)

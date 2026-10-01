@@ -12,10 +12,11 @@ cloud_architect_spider.py — وكيل البنية السحابية
 مباشرة قبل أي قرار مالي.
 """
 
+import os
 import json
 from groq import Groq
 
-MODEL = "llama-3.1-8b-instant"
+MODEL = os.environ.get("GROQ_MODEL", "openai/gpt-oss-120b")
 
 
 def design_cloud_architecture(client: Groq, product_description: str) -> dict:

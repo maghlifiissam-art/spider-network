@@ -39,7 +39,7 @@ VERIFY_TOKEN = os.environ["WHATSAPP_VERIFY_TOKEN"]
 GROQ_API_KEY = os.environ["GROQ_API_KEY"]
 
 GRAPH_API_URL = f"https://graph.facebook.com/v21.0/{PHONE_NUMBER_ID}/messages"
-MODEL = "llama-3.1-8b-instant"
+MODEL = os.environ.get("GROQ_MODEL", "openai/gpt-oss-120b")
 
 client = Groq(api_key=GROQ_API_KEY)
 

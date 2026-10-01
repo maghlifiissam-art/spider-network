@@ -16,10 +16,11 @@ book_spider.py — Digital Books & Illustrated Stories Spider
                                    موجود بدون ما يبدل الهيكل العام
 """
 
+import os
 import json
 from groq import Groq, APIError, APIConnectionError, RateLimitError
 
-MODEL = "llama-3.1-8b-instant"
+MODEL = os.environ.get("GROQ_MODEL", "openai/gpt-oss-120b")
 
 
 def _safe_call(client: Groq, system_prompt: str, user_prompt: str, max_tokens: int = 1500) -> str:

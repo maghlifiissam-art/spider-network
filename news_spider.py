@@ -17,7 +17,7 @@ import requests
 from groq import Groq, APIError, APIConnectionError, RateLimitError
 
 NEWSAPI_KEY = os.environ.get("NEWSAPI_KEY", "")
-MODEL = "llama-3.1-8b-instant"
+MODEL = os.environ.get("GROQ_MODEL", "openai/gpt-oss-120b")
 
 
 def fetch_news(query: str, language: str = "en", page_size: int = 5) -> dict:

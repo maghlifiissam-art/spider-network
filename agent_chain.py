@@ -8,11 +8,12 @@ agent_chain.py — الوكلاء المتسلسلون أوتوماتيكياً 
   3. 🔎 مراجعة — QA Spider كيراجع المسودة ويعلم أي مشكل قبل ما تنشر
 """
 
+import os
 from groq import Groq
 from news_spider import fetch_news
 from qa_spider import review_content
 
-MODEL = "llama-3.1-8b-instant"
+MODEL = os.environ.get("GROQ_MODEL", "openai/gpt-oss-120b")
 
 WRITER_PROMPTS = {
     "affiliate": """You are the Affiliate Spider, an autonomous market analyst and affiliate \

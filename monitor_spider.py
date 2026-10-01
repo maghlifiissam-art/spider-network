@@ -29,7 +29,7 @@ GROQ_API_KEY = os.environ["GROQ_API_KEY"]
 GMAIL_USER = os.environ["GMAIL_USER"]
 GMAIL_APP_PASSWORD = os.environ["GMAIL_APP_PASSWORD"]
 RECIPIENT_EMAIL = os.environ.get("RECIPIENT_EMAIL", GMAIL_USER)
-MODEL = "llama-3.1-8b-instant"
+MODEL = os.environ.get("GROQ_MODEL", "openai/gpt-oss-120b")
 LOG_PATH = "data/spider_log.json"
 
 client = Groq(api_key=GROQ_API_KEY)
