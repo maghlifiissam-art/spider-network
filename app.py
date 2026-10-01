@@ -28,7 +28,7 @@ from groq import Groq, APIError, APIConnectionError, RateLimitError
 # ---------------------------------------------------------------------------
 # إعدادات عامة
 # ---------------------------------------------------------------------------
-MODEL = "llama-3.1-8b-instant"
+MODEL = os.environ.get("GROQ_MODEL", "openai/gpt-oss-120b")
 
 st.set_page_config(
     page_title="Spider Network Operations",

@@ -11,10 +11,11 @@ qa_spider.py — وكيل مراقبة الجودة ومكافحة الهلوس�
 وصف منتج...) وترجع تقرير مراجعة منظم.
 """
 
+import os
 import json
 from groq import Groq, APIError, APIConnectionError, RateLimitError
 
-MODEL = "llama-3.1-8b-instant"
+MODEL = os.environ.get("GROQ_MODEL", "openai/gpt-oss-120b")
 
 
 def review_content(client: Groq, content: str, context: str = "", language: str = "العربية") -> dict:

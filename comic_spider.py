@@ -11,10 +11,11 @@ comic_spider.py — سيناريو القصة المصورة (Bande Dessinée)
 نماذج توليد الصور)، أما الحوار/التعليق فبيكتب باللغة اللي طلبتيها.
 """
 
+import os
 import json
 from groq import Groq, APIError, APIConnectionError, RateLimitError
 
-MODEL = "llama-3.1-8b-instant"
+MODEL = os.environ.get("GROQ_MODEL", "openai/gpt-oss-120b")
 
 
 def _safe_call(client: Groq, system_prompt: str, user_prompt: str, max_tokens: int = 2000) -> str:

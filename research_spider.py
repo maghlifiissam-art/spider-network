@@ -13,11 +13,12 @@ research_spider.py — وكيل هجين للبحث والتخصص العلمي
 الأصلية بالكامل قبل الاعتماد عليها فقرار علمي أو أكاديمي مهم.
 """
 
+import os
 import requests
 import xml.etree.ElementTree as ET
 from groq import Groq
 
-MODEL = "llama-3.1-8b-instant"
+MODEL = os.environ.get("GROQ_MODEL", "openai/gpt-oss-120b")
 SEMANTIC_SCHOLAR_URL = "https://api.semanticscholar.org/graph/v1/paper/search"
 ARXIV_URL = "http://export.arxiv.org/api/query"
 

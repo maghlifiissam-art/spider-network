@@ -9,10 +9,11 @@ electronics_spider.py — أول خطوة فوكيل الإلكترونيات: �
 قبل التصنيع، بالخصوص للسلامة الكهربائية.
 """
 
+import os
 import json
 from groq import Groq
 
-MODEL = "llama-3.1-8b-instant"
+MODEL = os.environ.get("GROQ_MODEL", "openai/gpt-oss-120b")
 
 # قيم مقاومات معيارية حقيقية (سلسلة E12) — باش نقترحو قيمة موجودة فالسوق
 STANDARD_RESISTORS_OHM = [

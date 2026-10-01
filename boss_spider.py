@@ -41,7 +41,7 @@ from bullet_spider import MarketSpyHandoffAdapter, OfflineFixtureAdapter, run_bu
 from sales_spider import run_sales_spider
 from market_spy_spider import format_report, research_market
 
-MODEL = "llama-3.1-8b-instant"
+MODEL = os.environ.get("GROQ_MODEL", "openai/gpt-oss-120b")
 
 MARKETING_PROMPTS = {
     "affiliate": "You are the Affiliate Spider, an autonomous market analyst and affiliate strategist. Identify high-potential micro-niches, traffic acquisition angles, and actionable next steps.",
