@@ -24,8 +24,10 @@ def devpost():
         if "online" not in loc.lower():
             continue
         prize = TAG.sub("", h.get("prize_amount") or "").strip()
+        amt = int(re.sub(r"[^0-9]", "", prize) or 0)
+        tier = "BIG" if amt >= 50000 else "MID" if amt >= 5000 else "SMALL"
         yield {"id": "dp-%s" % h["id"], "src": "Devpost", "title": h["title"], "url": h["url"],
-               "info": "prize %s | deadline %s" % (prize or "n/a", h.get("submission_period_dates", "n/a"))}
+               "tier": tier, "info": "prize %s | deadline %s" % (prize or "n/a", h.get("submission_period_dates", "n/a"))}
 
 
 def fundsforngos():
@@ -51,7 +53,7 @@ def main():
     day = datetime.date.today().isoformat()
     lines = ["# Opportunities %s" % day, "", "Review before acting. Eligibility and terms are unchecked.", ""]
     for x in new[:40]:
-        lines.append("- [%s] %s - %s (%s)" % (x["src"], x["title"], x["url"], x["info"]))
+        lines.append("- [%s]%s %s - %s (%s)" % (x["src"], " " + x.get("tier", "GRANT"), x["title"], x["url"], x["info"]))
     open(os.path.join(OUT, day + ".md"), "w").write("\n".join(lines) + "\n")
     json.dump(sorted(seen | {x["id"] for x in new}), open(SEEN, "w"))
     print("wrote", len(new))
