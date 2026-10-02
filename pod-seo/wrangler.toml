@@ -1,0 +1,18 @@
+name = "pod-seo-tool"
+main = "src/worker.js"
+compatibility_date = "2026-09-30"
+
+[assets]
+directory = "public"
+binding = "ASSETS"
+run_worker_first = ["/api/*"]
+
+[ai]
+binding = "AI"
+
+[[kv_namespaces]]
+binding = "USAGE"
+id = "3e2656f621ae45b096e1026bd3c0ff5f"
+
+[vars]
+FREE_PER_DAY = "5"
