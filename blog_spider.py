@@ -85,6 +85,7 @@ Rules:
 - Do NOT invent facts, numbers, quotes or details that are not in the item.
 - Use your own words. Never copy sentences from the source.
 - Name the source in the text ("According to {item['source']}...").
+- Angle: practical and buyer-intent. Write for a small entrepreneur, student or freelancer who wants to earn or save money with this news (what to do, which tool or skill to learn, what to avoid). No hype, no income promises.
 - Structure: a title line starting with '# ', a short intro, 2 short sections with '## ' headers, a one-paragraph takeaway for a small entrepreneur.
 - End with a 'المصدر / Source' line with the source name and URL.
 If the item gives too little detail, write a shorter post and say that details are limited."""
@@ -96,6 +97,23 @@ If the item gives too little detail, write a shorter post and say that details a
         max_tokens=1500,
     )
     return resp.choices[0].message.content.strip()
+
+
+STORE = "https://maghlifi.gumroad.com"
+PRODUCTS = [
+    (("ai", "chatgpt", "openai", "model", "study"), "Study Smarter with AI", STORE),
+    (("invest", "crypto", "bank", "stock", "money", "market"), "Smart Investing for Beginners", "https://maghlifi.gumroad.com/l/smart-investing-beginners"),
+    (("farm", "climate", "agri", "food"), "Climate-Smart Farming", "https://maghlifi.gumroad.com/l/climate-smart-small-space-farming"),
+]
+
+
+def cta_for(item: dict) -> str:
+    """Honest, short pointer to one of our own products when the topic fits; otherwise the store."""
+    text = (item["title"] + " " + item["summary"]).lower()
+    for keys, name, url in PRODUCTS:
+        if any(k in text for k in keys):
+            return f"\n\n---\nإذا كنت تريد خطوات عملية: [{name}]({url})\n"
+    return f"\n\n---\nأدلة رقمية عملية للطباعة والتحميل: [{STORE}]({STORE})\n"
 
 
 def main() -> int:
@@ -116,7 +134,7 @@ def main() -> int:
     os.makedirs(DRAFTS_DIR, exist_ok=True)
     path = os.path.join(DRAFTS_DIR, f"{day}-{slug}.md")
     header = f"<!-- status: DRAFT (needs review) | source: {item['source']} | url: {item['url']} -->\n\n"
-    open(path, "w", encoding="utf-8").write(header + body + "\n")
+    open(path, "w", encoding="utf-8").write(header + body + cta_for(item) + "\n")
     seen.add(item["url"])
     save_seen(seen)
     print("draft:", path)
