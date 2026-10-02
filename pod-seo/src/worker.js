@@ -1,6 +1,6 @@
 import { PLATFORMS, findFlagged, fitTags, fitTitle } from "./rules.js";
 
-const VISION = "@cf/mistralai/mistral-small-3.1-24b-instruct";
+const VISION = "@cf/meta/llama-4-scout-17b-16e-instruct";
 const TEXT = "@cf/mistralai/mistral-small-3.1-24b-instruct";
 
 const json = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { "content-type": "application/json", "cache-control": "no-store" } });
@@ -17,10 +17,10 @@ function toDataUrl(bytes) {
   return "data:image/jpeg;base64," + btoa(bin);
 }
 
-async function describeDesign(env, image) {
+async function describeDesign(env, image, designText) {
   const r = await env.AI.run(VISION, {
     messages: [{ role: "user", content: [
-      { type: "text", text: "Describe this print-on-demand design for a product listing. In 3 short lines: (1) main subject and any text on it (quote the text exactly), (2) art style and colors, (3) likely audience or occasion. No brand names." },
+      { type: "text", text: "Describe this print-on-demand design for a product listing. In 3 short lines: (1) main subject and any text on it (quote the text exactly), (2) art style and colors, (3) likely audience or occasion. No brand names." + (designText ? ` The seller says the exact text on the design is: "${designText}". Use that text.` : " Read any text letter by letter; if you cannot read it, say so instead of guessing.") },
       { type: "image_url", image_url: { url: toDataUrl(image) } },
     ] }],
     max_tokens: 220,
@@ -40,8 +40,8 @@ function parseJson(txt) {
   return JSON.parse(m[0]);
 }
 
-export async function generate(env, image, niche, keys) {
-  const desc = await describeDesign(env, image);
+export async function generate(env, image, niche, keys, designText) {
+  const desc = await describeDesign(env, image, designText);
   const r = await env.AI.run(TEXT, { messages: [{ role: "user", content: listingPrompt(desc, niche, keys) }], max_tokens: 1400, temperature: 0.4 });
   const raw = r.choices?.[0]?.message?.content || (typeof r.response === "string" ? r.response : JSON.stringify(r.response));
   const data = parseJson(raw);
@@ -72,7 +72,7 @@ export default {
       const limit = parseInt(env.FREE_PER_DAY || "5", 10);
       if (used >= limit) return json({ error: "free limit reached for today", limit }, 429);
       try {
-        const res = await generate(env, image, String(body.niche || "").slice(0, 80), keys);
+        const res = await generate(env, image, String(body.niche || "").slice(0, 80), keys, String(body.designText || "").slice(0, 100));
         await env.USAGE.put(key, String(used + 1), { expirationTtl: 172800 });
         return json({ ...res, remaining: limit - used - 1 });
       } catch (e) {
