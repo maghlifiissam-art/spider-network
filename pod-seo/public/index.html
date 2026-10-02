@@ -16,6 +16,7 @@ textarea,input[type=text]{width:100%;box-sizing:border-box;padding:8px;border:1p
 <div class="card">
 <input type="file" id="f" accept="image/*"><br><img id="prev" alt="">
 <p><input type="text" id="niche" maxlength="80" placeholder="Optional niche keyword (e.g. cat mom, retro surf)"></p>
+<p><input type="text" id="dtext" maxlength="100" placeholder="Optional: the exact text on your design (most accurate)"></p>
 <p><label><input type="checkbox" class="pl" value="etsy" checked> Etsy</label>
 <label><input type="checkbox" class="pl" value="redbubble" checked> Redbubble</label>
 <label><input type="checkbox" class="pl" value="teepublic" checked> TeePublic</label></p>
@@ -36,7 +37,7 @@ function esc(s){return String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>
 $('#go').onclick=async()=>{if(!bytes){$('#st').textContent='Pick an image first';return}
  const platforms=[...document.querySelectorAll('.pl:checked')].map(i=>i.value);if(!platforms.length){$('#st').textContent='Pick a platform';return}
  $('#st').textContent='Working... (about 10-20 seconds)';$('#out').innerHTML='';
- const r=await fetch('/api/generate',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({image:bytes,niche:$('#niche').value,platforms})});
+ const r=await fetch('/api/generate',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({image:bytes,niche:$('#niche').value,designText:$('#dtext').value,platforms})});
  const d=await r.json();if(!r.ok){$('#st').textContent=d.error||'Error';return}
  $('#st').textContent='Done. Free designs left today: '+d.remaining;
  const names={etsy:'Etsy',redbubble:'Redbubble',teepublic:'TeePublic'};
