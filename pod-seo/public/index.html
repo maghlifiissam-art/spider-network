@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>POD Listing Writer - titles, tags, description for Etsy, Redbubble, TeePublic</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:760px;margin:24px auto;padding:0 16px;color:#1b1b1b}
+h1{font-size:1.5rem}.card{border:1px solid #ddd;border-radius:10px;padding:14px;margin:14px 0}
+button{padding:9px 14px;border:0;border-radius:8px;background:#111;color:#fff;cursor:pointer}
+button.s{background:#eee;color:#111;padding:4px 9px;font-size:.8rem}
+textarea,input[type=text]{width:100%;box-sizing:border-box;padding:8px;border:1px solid #ccc;border-radius:6px;font:inherit}
+.tag{display:inline-block;background:#f1f1f1;border-radius:12px;padding:2px 9px;margin:2px;font-size:.85rem}
+.warn{background:#fff3cd;border-radius:6px;padding:6px 9px;font-size:.85rem;margin-top:6px}
+#prev{max-width:180px;max-height:180px;display:none;margin-top:8px;border-radius:8px}.small{color:#666;font-size:.85rem}
+</style></head><body>
+<h1>POD Listing Writer</h1>
+<p>Upload your design. Get a title, tags and description formatted to each platform's limits. Free: 5 designs per day, no signup.</p>
+<div class="card">
+<input type="file" id="f" accept="image/*"><br><img id="prev" alt="">
+<p><input type="text" id="niche" maxlength="80" placeholder="Optional niche keyword (e.g. cat mom, retro surf)"></p>
+<p><label><input type="checkbox" class="pl" value="etsy" checked> Etsy</label>
+<label><input type="checkbox" class="pl" value="redbubble" checked> Redbubble</label>
+<label><input type="checkbox" class="pl" value="teepublic" checked> TeePublic</label></p>
+<button id="go">Generate</button> <span id="st" class="small"></span></div>
+<div id="out"></div>
+<p class="small">Trademark flags are a basic keyword check, not legal advice. Always review the text before publishing.</p>
+<script>
+let bytes=null;
+const $=s=>document.querySelector(s);
+$('#f').onchange=async e=>{const file=e.target.files[0];if(!file)return;
+ const img=await createImageBitmap(file);const m=640,sc=Math.min(1,m/Math.max(img.width,img.height));
+ const c=document.createElement('canvas');c.width=Math.round(img.width*sc);c.height=Math.round(img.height*sc);
+ const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(img,0,0,c.width,c.height);
+ const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',0.8));bytes=[...new Uint8Array(await blob.arrayBuffer())];
+ $('#prev').src=URL.createObjectURL(blob);$('#prev').style.display='block';};
+function copy(t,b){navigator.clipboard.writeText(t);b.textContent='Copied';setTimeout(()=>b.textContent='Copy',1200)}
+function esc(s){return String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}
+$('#go').onclick=async()=>{if(!bytes){$('#st').textContent='Pick an image first';return}
+ const platforms=[...document.querySelectorAll('.pl:checked')].map(i=>i.value);if(!platforms.length){$('#st').textContent='Pick a platform';return}
+ $('#st').textContent='Working... (about 10-20 seconds)';$('#out').innerHTML='';
+ const r=await fetch('/api/generate',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({image:bytes,niche:$('#niche').value,platforms})});
+ const d=await r.json();if(!r.ok){$('#st').textContent=d.error||'Error';return}
+ $('#st').textContent='Done. Free designs left today: '+d.remaining;
+ const names={etsy:'Etsy',redbubble:'Redbubble',teepublic:'TeePublic'};
+ let h='<div class="card small"><b>What the AI saw:</b> '+esc(d.designSummary)+'</div>';
+ for(const k of Object.keys(d.listings)){const l=d.listings[k];const tags=l.tags.join(', ');
+  h+='<div class="card"><h3>'+names[k]+'</h3><b>Title</b> ('+l.title.length+' chars) <button class="s" onclick="copy(this.dataset.t,this)" data-t="'+esc(l.title).replace(/"/g,'&quot;')+'">Copy</button><p>'+esc(l.title)+'</p>'
+  +'<b>Tags</b> ('+l.tags.length+') <button class="s" onclick="copy(this.dataset.t,this)" data-t="'+esc(tags).replace(/"/g,'&quot;')+'">Copy</button><p>'+l.tags.map(t=>'<span class="tag">'+esc(t)+'</span>').join('')+'</p>'
+  +'<b>Description</b> <button class="s" onclick="copy(this.dataset.t,this)" data-t="'+esc(l.description).replace(/"/g,'&quot;')+'">Copy</button><p>'+esc(l.description)+'</p>'
+  +(l.mainTag?'<p class="small">TeePublic main tag: <b>'+esc(l.mainTag)+'</b></p>':'')
+  +(l.flagged.length?'<div class="warn">Possible protected terms: '+esc(l.flagged.join(', '))+'. Check before using.</div>':'')+'</div>';}
+ $('#out').innerHTML=h;};
+</script></body></html>
