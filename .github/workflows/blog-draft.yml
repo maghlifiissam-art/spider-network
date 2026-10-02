@@ -1,0 +1,30 @@
+name: Blog Draft (daily, RSS)
+
+on:
+  schedule:
+    - cron: "30 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  draft:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install groq requests
+      - name: Write one draft
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+        run: python blog_spider.py
+      - name: Commit draft
+        run: |
+          git config user.name "blog-spider"
+          git config user.email "blog-spider@users.noreply.github.com"
+          git add blog
+          git diff --cached --quiet || git commit -m "Blog draft $(date -u +%F)"
+          git push
