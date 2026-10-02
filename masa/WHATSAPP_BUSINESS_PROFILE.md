@@ -11,4 +11,4 @@ Away message: شكرا لتواصلك، نرد عليك خلال ساعات. إ�
 Quick replies: use the 5 scripts in masa/WHATSAPP_SCRIPTS.md as shortcuts (/confirm, /remind1, /remind2, /shipped, /followup).
 Catalog: add the first products once chosen (name, SAR price, photo, description). Empty for now.
 Order form link for the profile: https://tally.so/r/q40QvY
-Number: second physical SIM (see SIM options). Register WhatsApp Business on that number only.
+Number: +212663415542 (official MASA WhatsApp Business number, provided by the user). The user installs WhatsApp Business and registers it himself (SMS code goes to his phone).
