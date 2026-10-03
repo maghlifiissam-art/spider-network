@@ -1,0 +1,22 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Publish - Zolra</title><style>*{box-sizing:border-box}body{margin:0;background:#1e1038;color:#fff;font-family:system-ui,sans-serif;padding:20px;max-width:560px;margin:auto}a{color:#d4a017}h1{margin:.2em 0}input,textarea{width:100%;padding:12px;border-radius:12px;border:0;margin:6px 0;font-size:16px}button,.btn{background:#d4a017;color:#2e1065;border:0;padding:11px 18px;border-radius:20px;font-weight:700;font-size:15px;cursor:pointer;text-decoration:none;display:inline-block;margin:4px 4px 4px 0}button.alt{background:#ffffff22;color:#fff}.card{background:#ffffff14;border-radius:14px;padding:14px;margin:10px 0}video{width:100%;border-radius:12px;margin:8px 0;background:#000}.muted{opacity:.7;font-size:14px}</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script></head><body>
+<p><a href="index.html">&larr; Zolra</a> &middot; <a href="posts.html" data-i="feed"></a> &middot; <a href="account.html" data-i="account"></a></p><h1 data-i="pub"></h1><div id="app"></div>
+<script src="i18n.js"></script><script src="common.js"></script><script>
+const app=document.getElementById("app");
+(async()=>{const{data:{session}}=await SB.auth.getSession();if(!session){location.href="account.html";return}
+const u=session.user;const{data:ch}=await SB.from("channels").select("id,handle").eq("owner_id",u.id).maybeSingle();
+if(!ch){app.innerHTML='<div class="card"><a class="btn" href="account.html">'+T("need_channel")+'</a></div>';return}
+app.innerHTML='<div class="card"><select id="tp" style="width:100%;padding:12px;border-radius:12px;border:0;margin:6px 0;font-size:16px"><option value="general">'+T("general")+'</option><option value="news">'+T("news")+'</option><option value="courses">'+T("courses")+'</option><option value="ads">'+T("ads")+'</option><option value="publish">'+T("publish")+'</option></select><input id="ti" maxlength="150" placeholder="'+T("ptitle")+'"><textarea id="bd" rows="5" maxlength="5000" placeholder="'+T("ptext")+'"></textarea><p class="muted">'+T("pfile")+'</p><input id="fl" type="file" accept="image/*,video/mp4,video/webm,video/quicktime"><div id="pv"></div><button id="go">'+T("post_btn")+'</button><div id="msg" class="muted"></div></div>';
+const fl=document.getElementById("fl"),msg=document.getElementById("msg");
+fl.onchange=()=>{const f=fl.files[0];const pv=document.getElementById("pv");pv.innerHTML="";if(!f)return;const url=URL.createObjectURL(f);pv.innerHTML=f.type.startsWith("video")?'<video controls src="'+url+'"></video>':'<img src="'+url+'" style="width:100%;border-radius:12px;margin:8px 0">'};
+document.getElementById("go").onclick=async()=>{const f=fl.files[0],body=bd.value.trim(),title=ti.value.trim();
+if(!f&&!body&&!title){msg.textContent=T("empty");return}
+if(f&&f.size>52428800){msg.textContent=T("toobig");return}
+msg.textContent=T("posting");let media_url=null,kind="text";
+if(f){kind=f.type.startsWith("video")?"video":"image";const ext=(f.name.split(".").pop()||"bin").toLowerCase().replace(/[^a-z0-9]/g,"");const path=u.id+"/"+Date.now()+"."+ext;
+const up=await SB.storage.from("media").upload(path,f,{contentType:f.type,cacheControl:"31536000"});if(up.error){msg.textContent=up.error.message;return}
+media_url=SB.storage.from("media").getPublicUrl(path).data.publicUrl}
+const r=await SB.from("posts").insert({owner_id:u.id,channel_id:ch.id,kind,topic:tp.value,title:title||null,body:body||null,media_url});
+if(r.error){msg.textContent=r.error.message;return}
+msg.textContent=T("posted");setTimeout(()=>location.href="channel.html?h="+encodeURIComponent(ch.handle),700)}})();
+</script></body></html>
