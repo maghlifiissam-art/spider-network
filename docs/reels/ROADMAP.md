@@ -7,4 +7,5 @@ Next, in order:
    b. Referral system: personal invite link, points per signed-up friend.
    c. AI captions/translation on reels (free Workers AI), so Moroccan content reaches abroad.
 3. News/Courses auto-fill from the spiders; ads submit form.
+4. Marketplace (user request 3 Oct): Shop section to list and sell products; sellers post product reels; sponsored/ad reels inserted in the main feed (labelled 'Sponsored'). Payments: no card processing built by us. Start with cash on delivery and order messages to the seller; later a free-to-integrate gateway (e.g. CMI/PayPal links), each decided by the user since money and legal terms are his.
 Later (proposed, not approved): in-app course store, publisher analytics.
