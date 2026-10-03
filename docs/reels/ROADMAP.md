@@ -17,3 +17,6 @@ No ads in the app before the audience exists.
 
 ## Built-in AI assistant (user request, 3 Oct 2026)
 Helps creators with ideas, scripts, captions and hashtags in Arabic/Darija/French/English. Free tier only: Cloudflare Workers AI through a Worker (no key in the browser), with a per-user daily limit. Same engine later powers reel captions/translation. Starts after the backend (needs accounts for limits).
+
+## Identity and admin (user direction, 3 Oct 2026)
+Look: light violet + gold. Admin dashboard (dashboard.html): money in, money out, creator payouts, split control. Default split 70% creator / 30% platform, adjustable. Real data after the backend; the access must be admin-only then (demo page is open).

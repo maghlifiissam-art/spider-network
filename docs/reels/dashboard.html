@@ -1,0 +1,23 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Dashboard</title>
+<style>
+body{margin:0;background:#ede9fe;color:#2e1065;font-family:system-ui,sans-serif;padding:16px 16px 60px}
+a{color:#6d28d9}h1{font-size:22px}.k{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.c{background:#fff;border-radius:14px;padding:12px;border-top:4px solid #d4a017}.c b{display:block;font-size:22px}.c small{opacity:.7}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;margin-top:12px}td,th{padding:8px;text-align:left;font-size:14px;border-bottom:1px solid #ede9fe}
+input[type=range]{width:100%;accent-color:#d4a017}.note{font-size:12px;opacity:.7}
+</style></head><body>
+<a href="./">&larr; Reels</a><h1>Admin dashboard <small class="note">(demo data, sample numbers)</small></h1>
+<div class="c" style="margin-bottom:10px">Revenue split: creator <b id="cp"></b> platform <b id="pp"></b>
+<input type="range" id="r" min="0" max="100" step="5"><span class="note">Adjustable. Default 70% creator / 30% platform. Applies to new earnings only.</span></div>
+<div class="k"><div class="c"><small>Money in</small><b id="in"></b></div><div class="c"><small>Money out (payouts + costs)</small><b id="out"></b></div>
+<div class="c"><small>Platform share</small><b id="pl"></b></div><div class="c"><small>Owed to creators</small><b id="ow"></b></div></div>
+<table><thead><tr><th>Source</th><th>Amount (MAD)</th><th>Creator</th><th>Platform</th></tr></thead><tbody id="t"></tbody></table>
+<p class="note">Demo: sample rows. Real numbers come from the backend (sponsored ads, shop orders, Google ads) once it exists. Payouts are made by the user manually at first.</p>
+<script>
+const rows=[["Sponsored reel - brand A",500],["Shop order fee",120],["Sponsored reel - brand B",300],["Course sale",300]];
+const costs=0,paid=200;let sp=+(localStorage.sp||70);r.value=sp;
+function d(){sp=+r.value;localStorage.sp=sp;cp.textContent=sp+"% ";pp.textContent=(100-sp)+"%";const tin=rows.reduce((a,x)=>a+x[1],0);
+t.innerHTML=rows.map(x=>`<tr><td>${x[0]}</td><td>${x[1]}</td><td>${(x[1]*sp/100).toFixed(0)}</td><td>${(x[1]*(100-sp)/100).toFixed(0)}</td></tr>`).join("");
+in_.textContent=tin+" MAD";out.textContent=(paid+costs)+" MAD";pl.textContent=(tin*(100-sp)/100).toFixed(0)+" MAD";ow.textContent=(tin*sp/100-paid).toFixed(0)+" MAD"}
+const in_=document.getElementById("in");r.oninput=d;d();
+</script></body></html>
