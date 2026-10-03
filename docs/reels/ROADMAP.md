@@ -14,3 +14,6 @@ Later (proposed, not approved): in-app course store, publisher analytics.
 1. Paid sponsored reels from advertisers (labelled Sponsored). Works from the start: price per slot/week, advertiser pays the user directly at first.
 2. Google ads (AdSense-style): only after real traffic. Google needs an approved account, a real domain/content and an audience; the free GitHub Pages address is not enough. Apply once there are steady users; the account and terms are the user's decision.
 No ads in the app before the audience exists.
+
+## Built-in AI assistant (user request, 3 Oct 2026)
+Helps creators with ideas, scripts, captions and hashtags in Arabic/Darija/French/English. Free tier only: Cloudflare Workers AI through a Worker (no key in the browser), with a per-user daily limit. Same engine later powers reel captions/translation. Starts after the backend (needs accounts for limits).
