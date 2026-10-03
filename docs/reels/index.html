@@ -29,7 +29,7 @@ if(i.blob){const v=document.createElement("video");v.src=URL.createObjectURL(i.b
 c.insertAdjacentHTML("beforeend",`<div class="tag">${i.s}</div><h2></h2><p></p>`);c.querySelector("h2").textContent=i.t;c.querySelector("p").textContent=i.b;
 if(i.u)c.insertAdjacentHTML("beforeend",`<a class="cta" target="_blank" rel="noopener" href="${i.u}">Open</a>`);el.append(c)});
 const io=new IntersectionObserver(es=>es.forEach(e=>{const v=e.target.querySelector("video");if(v)e.isIntersecting?v.play():v.pause()}),{threshold:.6});el.querySelectorAll(".card").forEach(c=>io.observe(c))}
-document.getElementById("nav").innerHTML=SEC.map(([k,n])=>`<button data-k="${k}" class="${k==cur?"on":""}">${n}</button>`).join("");
+document.getElementById("nav").innerHTML=SEC.map(([k,n])=>`<button data-k="${k}" class="${k==cur?"on":""}">${n}</button>`).join("")+`<button onclick="location='groups.html'">Groups</button>`;
 document.getElementById("nav").onclick=e=>{const k=e.target.dataset.k;if(!k)return;cur=k;[...e.currentTarget.children].forEach(b=>b.classList.toggle("on",b.dataset.k==k));render()};
 add.onclick=()=>file.click();
 file.onchange=async()=>{const f=file.files[0];if(!f)return;const d=await db;d.transaction("v","readwrite").objectStore("v").add(f).onsuccess=()=>{cur="publish";location.reload()}};

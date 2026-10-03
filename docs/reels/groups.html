@@ -1,0 +1,29 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Groups</title><style>
+body{margin:0;background:#0b0b10;color:#fff;font-family:system-ui,sans-serif;padding:16px 16px 80px}
+a{color:#ff7a9c}h1{font-size:22px}.g{background:#ffffff12;border-radius:14px;padding:14px;margin:12px 0}
+.g h3{margin:0 0 4px}.g small{opacity:.7}button{background:#fff;color:#000;border:0;border-radius:16px;padding:8px 14px;margin:8px 8px 0 0;font-weight:600}
+button.x{background:#ffffff22;color:#fff}.st{font-size:12px;padding:2px 8px;border-radius:10px;background:#ffffff22}
+#call{position:fixed;inset:0;background:#000;display:none;flex-direction:column;z-index:9}#call iframe{flex:1;border:0}#call button{margin:8px}
+</style></head><body>
+<a href="./">&larr; Reels</a><h1>Closed groups</h1>
+<label><input type="checkbox" id="adm"> Admin view (demo)</label>
+<div id="list"></div>
+<div id="call"><button onclick="endCall()">Leave call</button><iframe allow="camera;microphone;fullscreen;display-capture"></iframe></div>
+<script>
+const G=[{id:"c1",n:"Study group with a teacher",d:"A course group led by a teacher. Posts and live classes, members only.",open:true},
+{id:"c2",n:"E-commerce course community",d:"Course members and mentors. Admin approves each member.",open:true},
+{id:"c3",n:"Moroccan creators circle",d:"Closed while the admin reviews requests.",open:false}];
+const S=JSON.parse(localStorage.g||"{}");const save=()=>localStorage.g=JSON.stringify(S);
+function room(id){return"reels-"+id+"-"+(S.k||(S.k=Math.random().toString(36).slice(2,10)+Math.random().toString(36).slice(2,10)),save(),S.k)}
+function draw(){const a=adm.checked;list.innerHTML=G.map(g=>{const st=S[g.id]||"none",o=S["o"+g.id]??g.open;
+return `<div class="g"><h3>${g.n}</h3><small>${g.d}</small><p><span class="st">${o?"open for requests":"closed by admin"}</span> <span class="st">you: ${st}</span></p>
+${st=="none"&&o?`<button onclick="req('${g.id}')">Ask to join</button>`:""}
+${st=="member"?`<button onclick="call('${g.id}')">Join live call</button>`:""}
+${a?`<button class="x" onclick="tog('${g.id}')">${o?"Close":"Open"} membership</button>${st=="pending"?`<button onclick="ok('${g.id}')">Approve pending request</button>`:""}`:""}</div>`}).join("")}
+function req(i){S[i]="pending";save();draw()}function ok(i){S[i]="member";save();draw()}
+function tog(i){S["o"+i]=!(S["o"+i]??G.find(g=>g.id==i).open);save();draw()}
+function call(i){const f=document.querySelector("#call iframe");f.src="https://meet.jit.si/"+room(i)+"#config.prejoinPageEnabled=true";call_.style.display="flex"}
+const call_=document.getElementById("call");function endCall(){document.querySelector("#call iframe").src="about:blank";call_.style.display="none"}
+adm.onchange=draw;draw();
+</script></body></html>
