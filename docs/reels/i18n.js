@@ -10,7 +10,7 @@ const T=k=>(I18N[LANG]&&I18N[LANG][k])||I18N.en[k]||k;
 function applyLang(){document.documentElement.lang=LANG==="ary"?"ar-MA":LANG;document.documentElement.dir=(LANG==="ar"||LANG==="ary")?"rtl":"ltr";
 document.querySelectorAll("[data-i]").forEach(e=>e.textContent=T(e.dataset.i));
 document.querySelectorAll("[data-ip]").forEach(e=>e.placeholder=T(e.dataset.ip))}
-function langSwitch(){const s=document.createElement("select");s.setAttribute("aria-label","Language");s.style.cssText="position:fixed;bottom:12px;left:12px;z-index:9;border-radius:12px;padding:6px;border:0;background:#ffffffdd;color:#2e1065";
+function langSwitch(){const s=document.createElement("select");s.setAttribute("aria-label","Language");s.style.cssText="position:fixed;bottom:12px;inset-inline-start:12px;width:auto;max-width:140px;z-index:9;border-radius:12px;padding:6px;border:0;background:#ffffffdd;color:#2e1065";
 for(const k in LN){const o=document.createElement("option");o.value=k;o.textContent=LN[k];if(k===LANG)o.selected=true;s.appendChild(o)}
 s.onchange=()=>{localStorage.setItem("lang",s.value);location.reload()};document.body.appendChild(s)}
 document.addEventListener("DOMContentLoaded",()=>{applyLang();langSwitch()});
