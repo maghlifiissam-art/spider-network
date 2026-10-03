@@ -1,0 +1,9 @@
+[
+{"s":"news","t":"AI at work: what changed this week","b":"Short daily news cards, auto-written from our blog spider and checked before publishing.","c":["#1d4ed8","#0b0b10"]},
+{"s":"news","t":"Hackathons closing soon","b":"ForgeHacks ends Oct 10. Amazon Developer ends Oct 23. Nebius x NVIDIA ends Oct 30.","c":["#0f766e","#0b0b10"]},
+{"s":"courses","t":"Study Smarter with AI","b":"A 9 dollar playbook: use AI to learn faster, with prompts you can copy.","c":["#7c3aed","#0b0b10"],"u":"https://maghlifi.gumroad.com/"},
+{"s":"courses","t":"From Idea to First Sale","b":"Step by step: pick an idea, test it for free, get your first customer.","c":["#b45309","#0b0b10"],"u":"https://maghlifi.gumroad.com/"},
+{"s":"ads","t":"Your product here","b":"Brands pay to reach viewers in a vertical feed. First slots are free while we grow.","c":["#be123c","#0b0b10"]},
+{"s":"ads","t":"Halloween Coloring Book","b":"Spooky pages to print and color. 9 dollars.","c":["#ea580c","#0b0b10"],"u":"https://maghlifi.gumroad.com/l/halloween-coloring-book"},
+{"s":"publish","t":"Post your own reel","b":"Tap + and choose a video from your phone. It shows in your feed (stored on your device in this demo).","c":["#475569","#0b0b10"]}
+]
