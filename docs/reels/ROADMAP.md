@@ -9,3 +9,8 @@ Next, in order:
 3. News/Courses auto-fill from the spiders; ads submit form.
 4. Marketplace (user request 3 Oct): Shop section to list and sell products; sellers post product reels; sponsored/ad reels inserted in the main feed (labelled 'Sponsored'). Payments: no card processing built by us. Start with cash on delivery and order messages to the seller; later a free-to-integrate gateway (e.g. CMI/PayPal links), each decided by the user since money and legal terms are his.
 Later (proposed, not approved): in-app course store, publisher analytics.
+
+## Monetization (user direction, 3 Oct 2026)
+1. Paid sponsored reels from advertisers (labelled Sponsored). Works from the start: price per slot/week, advertiser pays the user directly at first.
+2. Google ads (AdSense-style): only after real traffic. Google needs an approved account, a real domain/content and an audience; the free GitHub Pages address is not enough. Apply once there are steady users; the account and terms are the user's decision.
+No ads in the app before the audience exists.
