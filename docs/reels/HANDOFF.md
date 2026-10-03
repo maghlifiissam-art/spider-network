@@ -1,0 +1,10 @@
+# Reels platform handoff (3 Oct 2026)
+Live: https://maghlifiissam-art.github.io/spider-network/reels/ (GitHub Pages from docs/, repo maghlifiissam-art/spider-network, deploy = merge a PR to main; pages build takes about 1 minute).
+Files (docs/reels/): index.html (feed PWA: vertical snap-scroll, tabs All/News/Courses/Ads/Publish + Groups + Dashboard, "+" posts a video stored only in the phone's IndexedDB), feed.json (placeholder cards), groups.html (3 demo closed groups; join request/approve/open-close in localStorage; Jitsi Meet iframe via meet.jit.si with random per-device room), dashboard.html (admin demo: sample income, 70/30 split slider, no auth), sw.js (cache, bump version on changes), manifest.webmanifest, icon.svg, ROADMAP.md.
+Look: light violet + gold. Split default 70% creator / 30% platform (proposed by the user's agent; he said "you decide"; adjustable).
+All data is local/demo. Nothing shared between users, no auth.
+Roadmap order: (1) Supabase free backend: accounts, group admin role, membership, posts, shared video storage (Supabase Storage or Cloudflare R2/Stream free), admin-only dashboard with real data; (2) low-data mode; (3) referrals; (4) AI captions/translation; (5) built-in AI assistant (Workers AI behind a Worker); (6) marketplace + sponsored reels; (7) monetization: paid sponsored ads first, Google ads only after real traffic. News/Courses auto-fill from spiders.
+Rules: zero spend, free tiers only; no secrets in the repo (vault/Worker secrets); user approval for money, legal terms, payment gateways; Jitsi public server may require moderator login (unverified; test a real call before claiming it works); layouts never viewed on a phone yet.
+Supabase step: signup with magpro369@gmail.com (free, no card); Google sign-in needs the user's phone approval. Ask via main when reached.
+Pending from the user: app name and first audience (Moroccan creators vs learners).
+Tooling: GitHub token in vault ("GitHub token spider-network"), Cloudflare account/Workers AI as used by pod-seo/ (reference Worker code).
