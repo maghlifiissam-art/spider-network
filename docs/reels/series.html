@@ -1,0 +1,19 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Series & Films - Zolra</title><style>*{box-sizing:border-box}body{margin:0;background:#1e1038;color:#fff;font-family:system-ui,sans-serif;padding:20px;max-width:560px;margin:auto}a{color:#d4a017}h1{margin:.2em 0}input,textarea{width:100%;padding:12px;border-radius:12px;border:0;margin:6px 0;font-size:16px}button,.btn{background:#d4a017;color:#2e1065;border:0;padding:11px 18px;border-radius:20px;font-weight:700;font-size:15px;cursor:pointer;text-decoration:none;display:inline-block;margin:4px 4px 4px 0}button.alt{background:#ffffff22;color:#fff}.card{background:#ffffff14;border-radius:14px;padding:14px;margin:10px 0}video{width:100%;border-radius:12px;margin:8px 0;background:#000}.muted{opacity:.7;font-size:14px}</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script></head><body>
+<p><a href="index.html">&larr; Zolra</a> &middot; <a href="posts.html" data-i="feed"></a> &middot; <a href="publish.html?t=series" data-i="pub"></a> &middot; <a href="account.html" data-i="account"></a></p><h1 data-i="sf"></h1><div id="app">...</div>
+<script src="i18n.js"></script><script src="common.js"></script><script>
+const app=document.getElementById("app");const qs=new URLSearchParams(location.search);const id=qs.get("id");
+async function report(pid){const reason=prompt(T("reason"));if(!reason)return;const{data:{session}}=await SB.auth.getSession();if(!session){location.href="account.html";return}
+const r=await SB.from("reports").insert({post_id:pid,reporter_id:session.user.id,reason:reason.slice(0,500)});alert(r.error?r.error.message:T("reported"))}
+(async()=>{
+if(id){const{data:s}=await SB.from("series").select("*,channels(handle,name)").eq("id",id).maybeSingle();if(!s){app.textContent=T("noser");return}
+const{data:eps}=await SB.from("posts").select("*").eq("series_id",id).order("season",{ascending:true}).order("episode",{ascending:true}).order("created_at",{ascending:true});
+app.innerHTML='<p><a href="series.html">&larr; '+T("back")+'</a></p><h2>'+esc(s.title)+'</h2><div class="muted">'+(s.kind==="film"?T("sfilm"):T("sseries"))+' &middot; <a href="channel.html?h='+encodeURIComponent(s.channels?.handle||"")+'">@'+esc(s.channels?.handle)+'</a></div><p>'+esc(s.description)+'</p><h3>'+T("eps")+'</h3>'+
+((eps||[]).map(p=>'<div class="card"><b>'+(s.kind==="film"?"":(T("season")+" "+(p.season||1)+" &middot; "+T("ep")+" "+(p.episode||1)))+(p.title?" "+esc(p.title):"")+'</b>'+(p.body?'<p style="white-space:pre-wrap">'+esc(p.body)+'</p>':'')+'<video controls playsinline preload="metadata" src="'+esc(p.media_url)+'"></video><button class="alt" data-r="'+p.id+'">'+T("report")+'</button></div>').join("")||'<p class="muted">'+T("noser")+'</p>');
+app.querySelectorAll("[data-r]").forEach(b=>b.onclick=()=>report(b.dataset.r));return}
+const k=qs.get("k")||"all";
+const{data:l}=await SB.from("series").select("*,channels(handle)").order("created_at",{ascending:false}).limit(60);
+const list=(l||[]).filter(s=>k==="all"||s.kind===k);
+app.innerHTML=["all","series","film"].map(x=>'<a class="btn" style="'+(x===k?'':'background:#ffffff22;color:#fff')+'" href="?k='+x+'">'+(x==="all"?T("all"):x==="film"?T("films"):T("series"))+'</a>').join("")+
+(list.map(s=>'<a href="?id='+s.id+'" style="text-decoration:none;color:#fff"><div class="card"><b>'+esc(s.title)+'</b><div class="muted">'+(s.kind==="film"?T("sfilm"):T("sseries"))+' &middot; @'+esc(s.channels?.handle)+'</div><div class="muted">'+esc((s.description||"").slice(0,120))+'</div></div></a>').join("")||'<p class="muted">'+T("noser")+'</p>')})();
+</script></body></html>
