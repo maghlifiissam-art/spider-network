@@ -1,23 +1,19 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Dashboard</title>
-<style>
-body{margin:0;background:#ede9fe;color:#2e1065;font-family:system-ui,sans-serif;padding:16px 16px 60px}
-a{color:#6d28d9}h1{font-size:22px}.k{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.c{background:#fff;border-radius:14px;padding:12px;border-top:4px solid #d4a017}.c b{display:block;font-size:22px}.c small{opacity:.7}
-table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;margin-top:12px}td,th{padding:8px;text-align:left;font-size:14px;border-bottom:1px solid #ede9fe}
-input[type=range]{width:100%;accent-color:#d4a017}.note{font-size:12px;opacity:.7}
-</style></head><body>
-<a href="./">&larr; Reels</a><h1>Admin dashboard <small class="note">(demo data, sample numbers)</small></h1>
-<div class="c" style="margin-bottom:10px">Revenue split: creator <b id="cp"></b> platform <b id="pp"></b>
-<input type="range" id="r" min="0" max="100" step="5"><span class="note">Adjustable. Default 70% creator / 30% platform. Applies to new earnings only.</span></div>
-<div class="k"><div class="c"><small>Money in</small><b id="in"></b></div><div class="c"><small>Money out (payouts + costs)</small><b id="out"></b></div>
-<div class="c"><small>Platform share</small><b id="pl"></b></div><div class="c"><small>Owed to creators</small><b id="ow"></b></div></div>
-<table><thead><tr><th>Source</th><th>Amount (MAD)</th><th>Creator</th><th>Platform</th></tr></thead><tbody id="t"></tbody></table>
-<p class="note">Demo: sample rows. Real numbers come from the backend (sponsored ads, shop orders, Google ads) once it exists. Payouts are made by the user manually at first.</p>
-<script>
-const rows=[["Sponsored reel - brand A",500],["Shop order fee",120],["Sponsored reel - brand B",300],["Course sale",300]];
-const costs=0,paid=200;let sp=+(localStorage.sp||70);r.value=sp;
-function d(){sp=+r.value;localStorage.sp=sp;cp.textContent=sp+"% ";pp.textContent=(100-sp)+"%";const tin=rows.reduce((a,x)=>a+x[1],0);
-t.innerHTML=rows.map(x=>`<tr><td>${x[0]}</td><td>${x[1]}</td><td>${(x[1]*sp/100).toFixed(0)}</td><td>${(x[1]*(100-sp)/100).toFixed(0)}</td></tr>`).join("");
-in_.textContent=tin+" MAD";out.textContent=(paid+costs)+" MAD";pl.textContent=(tin*(100-sp)/100).toFixed(0)+" MAD";ow.textContent=(tin*sp/100-paid).toFixed(0)+" MAD"}
-const in_=document.getElementById("in");r.oninput=d;d();
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Dashboard - Zolra</title><style>*{box-sizing:border-box}body{margin:0;background:#1e1038;color:#fff;font-family:system-ui,sans-serif;padding:20px;max-width:560px;margin:auto}a{color:#d4a017}h1{margin:.2em 0}input,textarea{width:100%;padding:12px;border-radius:12px;border:0;margin:6px 0;font-size:16px}button,.btn{background:#d4a017;color:#2e1065;border:0;padding:11px 18px;border-radius:20px;font-weight:700;font-size:15px;cursor:pointer;text-decoration:none;display:inline-block;margin:4px 4px 4px 0}button.alt{background:#ffffff22;color:#fff}.card{background:#ffffff14;border-radius:14px;padding:14px;margin:10px 0}video{width:100%;border-radius:12px;margin:8px 0;background:#000}.muted{opacity:.7;font-size:14px}</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script></head><body>
+<p><a href="index.html">&larr; Zolra</a> &middot; <a href="account.html" data-i="account"></a></p><h1 data-i="dt"></h1><div id="app">...</div>
+<script src="i18n.js"></script><script src="common.js"></script><script>
+const app=document.getElementById("app");
+(async()=>{const{data:{session}}=await SB.auth.getSession();if(!session){location.href="account.html";return}
+const u=session.user;const{data:p}=await SB.from("profiles").select("role").eq("id",u.id).maybeSingle();
+if(p?.role!=="admin"){app.textContent=T("adminonly");return}
+async function draw(){const[{data:e},{data:s}]=await Promise.all([SB.from("earnings").select("*").order("created_at",{ascending:false}).limit(200),SB.from("settings").select("value").eq("key","revenue_split").maybeSingle()]);
+const sp=s?.value||{creator:70,platform:30};const sum=d=>(e||[]).filter(r=>r.direction===d).reduce((a,r)=>a+Number(r.amount),0);const i=sum("in"),o=sum("out");
+app.innerHTML='<div class="card"><div>'+T("inn")+': <b>'+i.toFixed(2)+' MAD</b></div><div>'+T("outt")+': <b>'+o.toFixed(2)+' MAD</b></div><div>'+T("net")+': <b>'+(i-o).toFixed(2)+' MAD</b></div></div>'+
+'<div class="card"><b>'+T("split")+'</b><input id="cp" type="number" min="0" max="100" value="'+sp.creator+'"><button id="sv">'+T("save")+'</button> <span id="m1" class="muted"></span></div>'+
+'<div class="card"><b>'+T("addrec")+'</b><select id="dr" style="width:100%;padding:12px;border-radius:12px;border:0;margin:6px 0"><option value="in">'+T("dirin")+'</option><option value="out">'+T("dirout")+'</option></select><input id="sc" placeholder="'+T("src")+'"><input id="am" type="number" min="0" step="0.01" placeholder="'+T("amt")+'"><input id="nt" placeholder="'+T("note")+'"><button id="ad">'+T("addrec")+'</button> <span id="m2" class="muted"></span></div>'+
+'<div class="card"><b>'+T("recent")+'</b>'+(e||[]).slice(0,30).map(r=>'<div class="muted">'+new Date(r.created_at).toLocaleDateString()+' &middot; '+(r.direction==="in"?"+":"-")+Number(r.amount).toFixed(2)+' &middot; '+esc(r.source)+(r.note?' &middot; '+esc(r.note):'')+'</div>').join("")+'</div>';
+document.getElementById("sv").onclick=async()=>{const c=Math.max(0,Math.min(100,Number(cp.value)));const r=await SB.from("settings").upsert({key:"revenue_split",value:{creator:c,platform:100-c}});m1.textContent=r.error?r.error.message:T("saved")};
+document.getElementById("ad").onclick=async()=>{const a=Number(am.value);if(!sc.value.trim()||!(a>0))return;const c=sp.creator/100;const isIn=dr.value==="in";
+const r=await SB.from("earnings").insert({direction:dr.value,source:sc.value.trim(),amount:a,note:nt.value.trim()||null,creator_share:isIn?+(a*c).toFixed(2):0,platform_share:isIn?+(a*(1-c)).toFixed(2):0});if(r.error)m2.textContent=r.error.message;else draw()}}
+draw()})();
 </script></body></html>
