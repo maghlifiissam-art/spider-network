@@ -1,21 +1,21 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Channel - Reels</title><style>*{box-sizing:border-box}body{margin:0;background:#1e1038;color:#fff;font-family:system-ui,sans-serif;padding:20px;max-width:560px;margin:auto}a{color:#d4a017}h1{margin:.2em 0}input,textarea{width:100%;padding:12px;border-radius:12px;border:0;margin:6px 0;font-size:16px}button,.btn{background:#d4a017;color:#2e1065;border:0;padding:11px 18px;border-radius:20px;font-weight:700;font-size:15px;cursor:pointer;text-decoration:none;display:inline-block;margin:4px 4px 4px 0}button.alt{background:#ffffff22;color:#fff}.card{background:#ffffff14;border-radius:14px;padding:14px;margin:10px 0}video{width:100%;border-radius:12px;margin:8px 0;background:#000}.muted{opacity:.7;font-size:14px}</style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script></head><body>
-<p><a href="index.html">&larr; Reels</a> &middot; <a href="account.html">Account</a></p><div id="app">Loading...</div>
-<script src="common.js"></script><script>
+<p><a href="index.html">&larr; <span data-i="reels"></span></a> &middot; <a href="account.html" data-i="account"></a></p><div id="app">Loading...</div>
+<script src="i18n.js"></script><script src="common.js"></script><script>
 const app=document.getElementById("app");const hnd=new URLSearchParams(location.search).get("h");
 (async()=>{if(!hnd){app.textContent="No channel.";return}
 const{data:c}=await SB.from("channel_stats").select("*").eq("handle",hnd).maybeSingle();
-if(!c){app.textContent="Channel not found.";return}
+if(!c){app.textContent=T('nochan');return}
 const{data:{session}}=await SB.auth.getSession();let following=false;
 if(session){const r=await SB.from("follows").select("*",{count:"exact",head:true}).eq("channel_id",c.id).eq("follower_id",session.user.id);following=(r.count||0)>0}
 let n=c.followers||0;
-app.innerHTML='<h1>'+esc(c.name)+'</h1><div class="muted">@'+esc(c.handle)+' &middot; <span id="fc">'+n+'</span> followers &middot; '+(c.reels||0)+' reels</div><p>'+esc(c.bio)+'</p><button id="fb"></button><div id="vs"></div>';
-const fb=document.getElementById("fb");const paint=()=>fb.textContent=following?"Following":"Follow";paint();
+app.innerHTML='<h1>'+esc(c.name)+'</h1><div class="muted">@'+esc(c.handle)+' &middot; <span id="fc">'+n+'</span>'+' '+T('followers')+' &middot; '+(c.reels||0)+''+' '+T('nreels')+'</div><p>'+esc(c.bio)+'</p><button id="fb"></button><div id="vs"></div>';
+const fb=document.getElementById("fb");const paint=()=>fb.textContent=following?T('following'):T('follow');paint();
 fb.onclick=async()=>{if(!session){location.href="account.html";return}
 if(following){await SB.from("follows").delete().eq("channel_id",c.id).eq("follower_id",session.user.id);n--}
 else{const r=await SB.from("follows").insert({channel_id:c.id,follower_id:session.user.id});if(r.error)return;n++}
 following=!following;paint();document.getElementById("fc").textContent=n};
 const{data:vs}=await SB.from("videos").select("*").eq("channel_id",c.id).order("created_at",{ascending:false});
-document.getElementById("vs").innerHTML=(vs||[]).map(v=>'<div class="card"><b>'+esc(v.caption||"")+'</b>'+(v.video_url?'<video controls playsinline src="'+esc(v.video_url)+'"></video>':"")+'</div>').join("")||'<p class="muted">No reels yet.</p>';
+document.getElementById("vs").innerHTML=(vs||[]).map(v=>'<div class="card"><b>'+esc(v.caption||"")+'</b>'+(v.video_url?'<video controls playsinline src="'+esc(v.video_url)+'"></video>':"")+'</div>').join("")||'<p class="muted">'+T('noreels')+'</p>';
 })();
 </script></body></html>
