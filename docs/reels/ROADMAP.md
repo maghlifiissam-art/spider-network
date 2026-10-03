@@ -20,3 +20,13 @@ Helps creators with ideas, scripts, captions and hashtags in Arabic/Darija/Frenc
 
 ## Identity and admin (user direction, 3 Oct 2026)
 Look: light violet + gold. Admin dashboard (dashboard.html): money in, money out, creator payouts, split control. Default split 70% creator / 30% platform, adjustable. Real data after the backend; the access must be admin-only then (demo page is open).
+
+
+## Launch plan (fast feedback)
+Start only once the full flow works end to end (login, channel, upload, follow, admin dashboard).
+1. Morocco first: the owner's network and Darija content. Seed 10-20 creators, collect feedback in the first 2 weeks.
+2. Egypt next: largest Arabic audience with high engagement. Same creator seeding approach, Arabic UI polish.
+3. Gulf later, once there is enough creator content to show.
+Support for all: low-data mode, referral codes (invite a friend), short feedback form inside the app.
+Metrics: sign-ups, creators with a channel, reels posted, follows, day-7 return rate.
+Money and legal choices (ads, payouts, terms) go to the owner first.
