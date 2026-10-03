@@ -6,10 +6,10 @@ const app=document.getElementById("app");const hnd=new URLSearchParams(location.
 (async()=>{if(!hnd){app.textContent="No channel.";return}
 const{data:c}=await SB.from("channel_stats").select("*").eq("handle",hnd).maybeSingle();
 if(!c){app.textContent=T('nochan');return}
-const{data:{session}}=await SB.auth.getSession();let following=false;
+const{data:{session}}=await SB.auth.getSession();let following=false;const{data:lv}=await SB.from("lives").select("id").eq("channel_id",c.id).eq("status","live").limit(1);
 if(session){const r=await SB.from("follows").select("*",{count:"exact",head:true}).eq("channel_id",c.id).eq("follower_id",session.user.id);following=(r.count||0)>0}
 let n=c.followers||0;
-app.innerHTML='<h1>'+esc(c.name)+'</h1><div class="muted">@'+esc(c.handle)+' &middot; <span id="fc">'+n+'</span>'+' '+T('followers')+' &middot; '+(c.reels||0)+''+' '+T('nreels')+'</div><p>'+esc(c.bio)+'</p><button id="fb"></button><div id="vs"></div>';
+app.innerHTML='<h1>'+esc(c.name)+'</h1><div class="muted">@'+esc(c.handle)+' &middot; <span id="fc">'+n+'</span>'+' '+T('followers')+' &middot; '+(c.reels||0)+''+' '+T('nreels')+'</div><p>'+esc(c.bio)+'</p><button id="fb"></button>'+(lv&&lv.length?'<a class="btn" style="background:#ff3b3b;color:#fff" href="live.html">&#9679; LIVE</a>':'')+'<div id="vs"></div>';
 const fb=document.getElementById("fb");const paint=()=>fb.textContent=following?T('following'):T('follow');paint();
 fb.onclick=async()=>{if(!session){location.href="account.html";return}
 if(following){await SB.from("follows").delete().eq("channel_id",c.id).eq("follower_id",session.user.id);n--}
