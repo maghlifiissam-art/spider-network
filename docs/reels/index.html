@@ -10,17 +10,17 @@
 h2{font-size:32px;line-height:1.12;margin:8px 0;font-weight:700;letter-spacing:-.02em}p{font-size:16px;line-height:1.55;color:#c9c5e6;max-width:560px}
 .cta{display:inline-block;margin-top:12px;background:#d4a017;color:#1a1033;padding:10px 20px;border-radius:999px;text-decoration:none;font-weight:700;width:max-content;font-size:14px;box-shadow:0 0 24px #d4a01755}
 nav button{background:transparent;color:#aaa6d0;border:0;padding:8px 14px;border-radius:999px;font-size:14px;font-weight:500}nav button.on{background:#d4a017;color:#1a1033;font-weight:700}
-#add{position:fixed;right:16px;bottom:24px;width:56px;height:56px;border-radius:50%;border:0;background:#d4a017;color:#1a1033;font-size:30px;z-index:5;box-shadow:0 0 28px #d4a01788}
+#add{position:fixed;right:16px;bottom:64px;width:56px;height:56px;border-radius:50%;border:0;background:#d4a017;color:#1a1033;font-size:30px;z-index:5;box-shadow:0 0 28px #d4a01788}
 .empty{display:grid;place-items:center;height:100dvh;color:#8d89b5}
 #hd{position:fixed;top:0;left:0;right:0;z-index:5;background:#070714CC;backdrop-filter:blur(14px);border-bottom:1px solid #ffffff14;padding:8px 10px 6px}
 .r1{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
 .brand{display:flex;align-items:center;gap:6px;border:1.5px solid #d4a017;border-radius:12px;padding:3px 10px;flex:none}.brand b{color:#d4a017;letter-spacing:2px;font-size:14px}
-.lk{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}.lk a{flex:none;font-size:13px;background:#ffffff1c;color:#f1efff;padding:6px 11px;border-radius:999px;text-decoration:none;white-space:nowrap}.lk a.lv{background:#ff3b3b;color:#fff;font-weight:700}
+.lk{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}.lk a{flex:none;font-size:13px;background:#ffffff1c;color:#f1efff;padding:6px 11px;border-radius:999px;text-decoration:none;white-space:nowrap}.lk a.mk{background:#d4a017;color:#1a1033;font-weight:700}.lk a.lv{background:#ff3b3b;color:#fff;font-weight:700}
 nav{position:static;display:flex;gap:4px;padding:0;background:none;border:0;backdrop-filter:none;overflow-x:auto;scrollbar-width:none;white-space:nowrap}nav button{flex:none}
 .card{padding-top:120px}
 </style></head><body>
-<header id="hd"><div class="r1"><div class="brand"><img src="icon.svg" alt="" width="22" height="22"><b>RIMAZ</b></div><div class="lk"><a href="posts.html" data-i="feed">Posts</a><a href="live.html" class="lv">&#9679; <span data-i="live">Live</span></a><a href="series.html" data-i="sf">Series</a><a href="account.html" data-i="account">Account</a></div></div><nav id="nav"></nav></header><div id="feed"></div>
-<button id="add" title="Post">+</button><input id="file" type="file" accept="video/*" hidden>
+<header id="hd"><div class="r1"><div class="brand"><img src="icon.svg" alt="" width="22" height="22"><b>RIMAZ</b></div><div class="lk"><a href="account.html" class="mk" data-i="mk_title">Create your channel</a><a href="posts.html" data-i="feed">Posts</a><a href="live.html" class="lv">&#9679; <span data-i="live">Live</span></a><a href="series.html" data-i="sf">Series</a><a href="account.html" data-i="account">Account</a></div></div><nav id="nav"></nav></header><div id="feed"></div>
+<button id="add" title="Publish">+</button><input id="file" type="file" accept="video/*" hidden>
 <script src="i18n.js"></script><script>
 const SEC=["all","news","courses","ads","publish"].map(k=>[k,T(k)]);
 let items=[],cur="all";
@@ -36,7 +36,7 @@ if(i.u)c.insertAdjacentHTML("beforeend",`<a class="cta" target="_blank" rel="noo
 const io=new IntersectionObserver(es=>es.forEach(e=>{const v=e.target.querySelector("video");if(v)e.isIntersecting?v.play():v.pause()}),{threshold:.6});el.querySelectorAll(".card").forEach(c=>io.observe(c))}
 document.getElementById("nav").innerHTML=SEC.map(([k,n])=>`<button data-k="${k}" class="${k==cur?"on":""}">${n}</button>`).join("")+`<button onclick="location='groups.html'">Groups</button><button onclick="location='dashboard.html'">Dashboard</button>`;
 document.getElementById("nav").onclick=e=>{const k=e.target.dataset.k;if(!k)return;cur=k;[...e.currentTarget.children].forEach(b=>b.classList.toggle("on",b.dataset.k==k));render()};
-add.onclick=()=>file.click();
+add.onclick=()=>{location="publish.html"};
 file.onchange=async()=>{const f=file.files[0];if(!f)return;const d=await db;d.transaction("v","readwrite").objectStore("v").add(f).onsuccess=()=>{cur="publish";location.reload()}};
 if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js");
 load();
