@@ -37,7 +37,7 @@ c.append(r);const n=r.querySelector(".n"),lb=r.querySelector('[data-a=l]'),fb=r.
 if(SBC){const{count}=await SBC.from("post_likes").select("*",{count:"exact",head:true}).eq("post_id",i.id);n.textContent=count||0;const se=await sess();if(se){const a=await SBC.from("post_likes").select("post_id").eq("post_id",i.id).eq("user_id",se.user.id);liked=!!(a.data&&a.data.length);lb.classList.toggle("on",liked);lb.querySelector(".ic").innerHTML=liked?"&#9829;":"&#9825;";const b=await SBC.from("follows").select("channel_id").eq("channel_id",i.cid).eq("follower_id",se.user.id);fol=!!(b.data&&b.data.length);if(fol){fb.classList.remove("fl");fb.classList.add("on");fb.querySelector(".ic").innerHTML="&#10003;"}}}
 r.onclick=async e=>{const b=e.target.closest("[data-a]");if(!b)return;e.stopPropagation();const a=b.dataset.a;
 if(a=="m"){r.querySelector(".mn").classList.toggle("o");return}
-if(a=="msg"){toast(T("soon"));return}
+if(a=="msg"){location="messages.html"+(i.h?"?h="+encodeURIComponent(i.h):"");return}
 if(a=="snd"){v.muted=!v.muted;return}
 if(a=="h"){const u=location.origin+location.pathname.replace(/index\.html$/,"")+"channel.html?h="+encodeURIComponent(i.h||"");if(navigator.share){try{await navigator.share({title:i.t,url:u})}catch(_){}}else{try{await navigator.clipboard.writeText(u);toast(T("copied"))}catch(_){prompt("",u)}}return}
 if(a=="s"){if(saved.has(i.id))saved.delete(i.id);else saved.add(i.id);localStorage.setItem("saved",JSON.stringify([...saved]));b.classList.toggle("on",saved.has(i.id));return}
