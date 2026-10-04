@@ -30,10 +30,15 @@ if(sid==="new"){const nt=$("nt").value.trim();if(!nt){msg.textContent=T("stitle"
 const r=await SB.from("series").insert({owner_id:u.id,channel_id:ch.id,kind,title:nt,description:$("nd").value.trim()||null}).select("id").single();if(r.error){msg.textContent=r.error.message;return}sid=r.data.id}
 series_id=sid;rights=true;if(kind==="series"){season=+$("se").value||1;episode=+$("ep").value||1}}
 msg.textContent=T("posting");let media_url=null,kind2="text";
-if(f){kind2=f.type.startsWith("video")?"video":"image";const ext=(f.name.split(".").pop()||"bin").toLowerCase().replace(/[^a-z0-9]/g,"");const path=u.id+"/"+Date.now()+"."+ext;
-const up=await SB.storage.from("media").upload(path,f,{contentType:f.type,cacheControl:"31536000"});if(up.error){msg.textContent=up.error.message;return}
+let poster_url=null;
+if(f){kind2=f.type.startsWith("video")?"video":"image";let uf=f,ct=f.type,ext=(f.name.split(".").pop()||"bin").toLowerCase().replace(/[^a-z0-9]/g,"");
+const jpg=(src,w,q)=>new Promise((res,rej)=>{const cv=document.createElement("canvas");const iw=src.videoWidth||src.width,ih=src.videoHeight||src.height;const r=Math.min(1,w/Math.max(iw,ih));cv.width=Math.round(iw*r);cv.height=Math.round(ih*r);cv.getContext("2d").drawImage(src,0,0,cv.width,cv.height);cv.toBlob(b=>b?res(b):rej(new Error("img")),"image/jpeg",q)});
+if(kind2==="image"&&f.type!=="image/gif"){try{const im=await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=URL.createObjectURL(f)});const b=await jpg(im,1280,.8);if(b.size<f.size){uf=b;ct="image/jpeg";ext="jpg"}}catch(e){}}
+const stamp=Date.now();const path=u.id+"/"+stamp+"."+ext;
+if(kind2==="video"){try{const vv=document.createElement("video");vv.muted=true;vv.playsInline=true;vv.preload="auto";vv.src=URL.createObjectURL(f);await new Promise((res,rej)=>{vv.onloadeddata=res;vv.onerror=rej;setTimeout(rej,8000)});vv.currentTime=Math.min(0.5,(vv.duration||1)/2);await new Promise(res=>{vv.onseeked=res;setTimeout(res,2000)});const pb=await jpg(vv,480,.7);const pp=u.id+"/"+stamp+"-poster.jpg";const pu=await SB.storage.from("media").upload(pp,pb,{contentType:"image/jpeg",cacheControl:"31536000"});if(!pu.error)poster_url=SB.storage.from("media").getPublicUrl(pp).data.publicUrl}catch(e){}}
+const up=await SB.storage.from("media").upload(path,uf,{contentType:ct,cacheControl:"31536000"});if(up.error){msg.textContent=up.error.message;return}
 media_url=SB.storage.from("media").getPublicUrl(path).data.publicUrl}
-const r=await SB.from("posts").insert({owner_id:u.id,channel_id:ch.id,kind:kind2,topic,title:title||null,body:body||null,media_url,series_id,season,episode,rights_confirmed:rights});
+const r=await SB.from("posts").insert({owner_id:u.id,channel_id:ch.id,kind:kind2,topic,title:title||null,body:body||null,media_url,poster_url,series_id,season,episode,rights_confirmed:rights});
 if(r.error){msg.textContent=r.error.message;return}
 msg.textContent=T("posted");setTimeout(()=>location.href=sf?"series.html?id="+series_id:"channel.html?h="+encodeURIComponent(ch.handle),700)}})();
 </script></body></html>
