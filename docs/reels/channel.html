@@ -11,6 +11,7 @@ if(session){const r=await SB.from("follows").select("*",{count:"exact",head:true
 let n=c.followers||0;
 app.innerHTML='<h1>'+esc(c.name)+'</h1><div class="muted">@'+esc(c.handle)+' &middot; <span id="fc">'+n+'</span>'+' '+T('followers')+' &middot; '+(c.reels||0)+''+' '+T('nreels')+'</div><p>'+esc(c.bio)+'</p><button id="fb"></button>'+(lv&&lv.length?'<a class="btn" style="background:#ff3b3b;color:#fff" href="live.html">&#9679; LIVE</a>':'')+'<div id="vs"></div>';
 const fb=document.getElementById("fb");const paint=()=>fb.textContent=following?T('following'):T('follow');paint();
+if(session&&session.user.id!==c.owner_id){const af=document.createElement("button");af.style.marginInlineStart="8px";af.style.background="#ffffff1c";af.style.color="#f1efff";const AL={en:"+ Friend",fr:"+ Ami",ar:"+ صديق",ary:"+ صاحب"};af.textContent=AL[localStorage.getItem("lang")||"en"]||AL.en;af.onclick=async()=>{const r=await SB.from("friendships").insert({requester_id:session.user.id,addressee_id:c.owner_id});af.textContent=r.error?(r.error.code==="23505"?"✓":"!"):"✓";af.disabled=true};fb.after(af)}
 fb.onclick=async()=>{if(!session){location.href="account.html";return}
 if(following){await SB.from("follows").delete().eq("channel_id",c.id).eq("follower_id",session.user.id);n--}
 else{const r=await SB.from("follows").insert({channel_id:c.id,follower_id:session.user.id});if(r.error)return;n++}
