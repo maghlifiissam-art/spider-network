@@ -21,16 +21,17 @@ nav{position:static;display:flex;gap:4px;padding:0;background:none;border:0;back
 </style></head><body>
 <header id="hd"><div class="r1"><div class="brand"><img src="icon.svg" alt="" width="22" height="22"><b>RIMAZ</b></div><div class="lk"><a href="account.html" class="mk" data-i="mk_title">Create your channel</a><a href="posts.html" data-i="feed">Posts</a><a href="live.html" class="lv">&#9679; <span data-i="live">Live</span></a><a href="series.html" data-i="sf">Series</a><a href="account.html" data-i="account">Account</a></div></div><nav id="nav"></nav></header><div id="feed"></div>
 <button id="add" title="Publish">+</button><input id="file" type="file" accept="video/*" hidden>
-<script src="i18n.js"></script><script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script><script src="i18n.js"></script><script>
 const SEC=["all","news","courses","ads","publish"].map(k=>[k,T(k)]);
 let items=[],cur="all";
 const db=new Promise(r=>{const q=indexedDB.open("reels",1);q.onupgradeneeded=()=>q.result.createObjectStore("v",{autoIncrement:true});q.onsuccess=()=>r(q.result)});
 async function mine(){const d=await db;return new Promise(r=>{const o=d.transaction("v").objectStore("v").getAll();o.onsuccess=()=>r(o.result)})}
-async function load(){const f=await (await fetch("feed.json")).json();const m=await mine();items=[...m.map(b=>({s:"publish",t:"My reel",b:"",blob:b})),...f];render()}
+async function load(){const f=await (await fetch("feed.json")).json();const m=await mine();let rv=[];try{const c=supabase.createClient("https://eyasbfywyatrkpkljxek.supabase.co","sb_publishable_1hlN6DuTPcl-rCJufPHBZw_gAr502Jq");const{data}=await c.from("posts").select("id,title,body,media_url,topic,channels(handle)").eq("kind","video").order("created_at",{ascending:false}).limit(20);rv=(data||[]).map(p=>({s:"publish",t:p.title||"@"+(p.channels?.handle||""),b:(p.body||"")+(p.channels?.handle?"  @"+p.channels.handle:""),vurl:p.media_url,h:p.channels?.handle}))}catch(e){}items=[...rv,...m.map(b=>({s:"publish",t:"My reel",b:"",blob:b})),...f];render()}
 function render(){const el=document.getElementById("feed");el.innerHTML="";const l=items.filter(i=>cur=="all"||i.s==cur);
 if(!l.length){el.innerHTML='<div class="empty">Nothing here yet</div>';return}
-l.forEach(i=>{const c=document.createElement("section");c.className="card";if(i.blob)c.classList.add("v");
+l.forEach(i=>{const c=document.createElement("section");c.className="card";if(i.blob||i.vurl)c.classList.add("v");
 if(i.blob){const v=document.createElement("video");v.src=URL.createObjectURL(i.blob);v.loop=true;v.muted=true;v.playsInline=true;c.append(v)}
+if(i.vurl){const v=document.createElement("video");v.src=i.vurl;v.loop=true;v.muted=true;v.playsInline=true;v.preload="metadata";v.onclick=()=>{v.muted=!v.muted};c.append(v)}
 c.insertAdjacentHTML("beforeend",`<div class="tag">${i.s}</div><h2></h2><p></p>`);c.querySelector("h2").textContent=i.t;c.querySelector("p").textContent=i.b;
 if(i.u)c.insertAdjacentHTML("beforeend",`<a class="cta" target="_blank" rel="noopener" href="${i.u}">Open</a>`);el.append(c)});
 const io=new IntersectionObserver(es=>es.forEach(e=>{const v=e.target.querySelector("video");if(v)e.isIntersecting?v.play():v.pause()}),{threshold:.6});el.querySelectorAll(".card").forEach(c=>io.observe(c))}
