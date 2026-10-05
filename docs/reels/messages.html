@@ -5,7 +5,7 @@ const LG=(localStorage.getItem("lang")||"en");
 const S={en:{t:"Messages",inbox:"Inbox",none:"No conversations yet. Open a channel and send a message.",ph:"Write a message...",send:"Send",login:"Sign in to use messages",nouser:"Channel not found",self:"You cannot message yourself",new:"new"},
 fr:{t:"Messages",inbox:"Boîte de réception",none:"Aucune conversation. Ouvrez une chaîne et écrivez.",ph:"Écrire un message...",send:"Envoyer",login:"Connectez-vous pour les messages",nouser:"Chaîne introuvable",self:"Vous ne pouvez pas vous écrire",new:"nouveau"},
 ar:{t:"الرسائل",inbox:"صندوق الوارد",none:"لا توجد محادثات بعد. افتح قناة وأرسل رسالة.",ph:"اكتب رسالة...",send:"إرسال",login:"سجّل الدخول لاستخدام الرسائل",nouser:"القناة غير موجودة",self:"لا يمكنك مراسلة نفسك",new:"جديد"},
-ary:{t:"الرسائل",inbox:"صندوق الوارد",none:"مازال ما كاين حتى محادثة. حل شي قناة وصيفط رسالة.",ph:"كتب رسالة...",send:"صيفط",login:"دخل باش تستعمل الرسائل",nouser:"القناة ما لقيناهاش",self:"ما يمكنش تراسل راسك",new:"جديد"}};
+ary:{t:"الرسائل",inbox:"صندوق الوارد",none:"مازال ما كاين حتى محادثة. حل شي قناة وصيفط رسالة.",ph:"كتب رسالة...",send:"صيفط",login:"دخل باش تستعمل الرسائل",nouser:"القناة ما لقيناهاش",self:"ما يمكنش تراسل راسك",new:"جديد"}};Object.assign(S,(EXD["messages"]||{}).S);;
 const X=k=>(S[LG]||S.en)[k]||S.en[k];
 document.getElementById("h1").textContent="\u2709 "+X("t");document.getElementById("inb").textContent=X("inbox");
 const h=new URLSearchParams(location.search).get("h");
