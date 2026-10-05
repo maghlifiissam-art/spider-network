@@ -6,7 +6,7 @@ document.getElementById("h1").textContent="\u{1F465} "+X("fo");document.getEleme
 
 (async()=>{const app=document.getElementById("app");const ES=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const{data:{session}}=await SB.auth.getSession();if(!session){app.innerHTML='<a class="btn" href="account.html">'+ES(X("login"))+'</a>';return}
-const{data:ch}=await SB.from("channels").select("id,followers").eq("owner_id",session.user.id).limit(1);if(!ch||!ch.length){app.innerHTML='<p>'+ES(X("nochan"))+'</p>';return}
+const{data:ch}=await SB.from("channel_stats").select("id,followers").eq("owner_id",session.user.id).limit(1);if(!ch||!ch.length){app.innerHTML='<p>'+ES(X("nochan"))+'</p>';return}
 const{data:fs,count}=await SB.from("follows").select("follower_id",{count:"exact"}).eq("channel_id",ch[0].id).limit(200);
 const n=count!=null?count:(ch[0].followers||0);let h='<p><b style="font-size:28px;color:#d4a017">'+n+'</b> '+ES(X("tot"))+'</p>';
 const ids=(fs||[]).map(r=>r.follower_id);
