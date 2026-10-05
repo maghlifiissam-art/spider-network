@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /spider-network/reels/dashboard.html
+Disallow: /spider-network/reels/admin-reports.html
+Sitemap: https://maghlifiissam-art.github.io/spider-network/reels/sitemap.xml
