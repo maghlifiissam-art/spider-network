@@ -8,7 +8,7 @@ const app=document.getElementById("app");const ES=s=>String(s==null?"":s).replac
 app.innerHTML='<input id="q" type="search" autofocus placeholder="'+ES(X("ph"))+'"><div id="res"></div>';
 let tm,seq=0;
 async function go(v){const q=v.replace(/[%,()*\\_]/g," ").trim();const my=++seq;const res=document.getElementById("res");if(q.length<2){res.innerHTML="";return}
-const[a,b]=await Promise.all([SB.from("posts").select("id,title,body,kind,channels(handle,name)").or("title.ilike.%"+q+"%,body.ilike.%"+q+"%").neq("topic","ads").order("created_at",{ascending:false}).limit(20),SB.from("channels").select("handle,name,bio,followers").or("name.ilike.%"+q+"%,handle.ilike.%"+q+"%,bio.ilike.%"+q+"%").limit(20)]);if(my!==seq)return;
+const[a,b]=await Promise.all([SB.from("posts").select("id,title,body,kind,channels(handle,name)").or("title.ilike.%"+q+"%,body.ilike.%"+q+"%").neq("topic","ads").order("created_at",{ascending:false}).limit(20),SB.from("channel_stats").select("handle,name,bio,followers").or("name.ilike.%"+q+"%,handle.ilike.%"+q+"%,bio.ilike.%"+q+"%").limit(20)]);if(my!==seq)return;
 const P=a.data||[],C=b.data||[];let h="";
 if(C.length)h+="<h3>"+ES(X("ch"))+"</h3>"+C.map(c=>'<div class="card"><a href="channel.html?h='+encodeURIComponent(c.handle)+'"><b>'+ES(c.name)+'</b></a> <span style="opacity:.7">@'+ES(c.handle)+' &middot; '+(c.followers||0)+'</span>'+(c.bio?'<p>'+ES(c.bio.slice(0,120))+'</p>':'')+'</div>').join("");
 if(P.length)h+="<h3>"+ES(X("re"))+"</h3>"+P.map(p=>'<div class="card"><a href="channel.html?h='+encodeURIComponent(p.channels?p.channels.handle:"")+'"><b>'+ES(p.title||p.body||"")+'</b></a><div style="opacity:.7;font-size:13px">'+ES(p.channels?p.channels.name:"")+'</div></div>').join("");
