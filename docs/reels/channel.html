@@ -3,7 +3,7 @@
 <p><a href="index.html">&larr; Rimaz</a> &middot; <a href="account.html" data-i="account"></a></p><div id="app">Loading...</div>
 <script src="i18n.js"></script><script src="common.js"></script><script>
 const app=document.getElementById("app");const hnd=new URLSearchParams(location.search).get("h");
-(async()=>{if(!hnd){app.textContent="No channel.";return}
+(async()=>{if(!hnd){app.textContent=T("nochan");return}
 const{data:c}=await SB.from("channel_stats").select("*").eq("handle",hnd).maybeSingle();
 if(!c){app.textContent=T('nochan');return}
 const{data:{session}}=await SB.auth.getSession();let following=false;const{data:lv}=await SB.from("lives").select("id").eq("channel_id",c.id).eq("status","live").limit(1);
