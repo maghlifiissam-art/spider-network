@@ -5,16 +5,16 @@
 <script src="i18n.js"></script><script src="common.js"></script><script>
 const app=document.getElementById("app");
 async function show(){const{data:{session}}=await SB.auth.getSession();if(!session)return login();
-const u=session.user;const{data:p}=await SB.from("profiles").select("*").eq("id",u.id).maybeSingle();
+const u=session.user;let nref=null;try{const rc=localStorage.getItem("rimaz_ref");if(rc){const q=await SB.rpc("claim_referral",{c:rc});localStorage.removeItem("rimaz_ref");if(!q.error)nref=q.data}}catch(e){}const{data:p}=await SB.from("profiles").select("*").eq("id",u.id).maybeSingle();
 const{data:ch}=await SB.from("channels").select("*").eq("owner_id",u.id).maybeSingle();
 let h='<div class="card"><b>'+esc(u.user_metadata?.full_name||u.email)+'</b><div class="muted">'+esc(u.email)+' &middot; '+T('role')+': '+esc(p?.role||"user")+'</div>';
-if(p?.referral_code)h+='<div class="muted">'+T('invite')+': <b>'+esc(p.referral_code)+'</b></div>';
+if(p?.referral_code){try{localStorage.setItem("rimaz_mycode",p.referral_code)}catch(e){}const lg=localStorage.getItem("lang")||"en";const W={en:["Your invite link","Copy / share","People who joined with your link","Copied"],fr:["Votre lien d'invitation","Copier / partager","Personnes inscrites avec votre lien","Copié"],ar:["رابط الدعوة الخاص بك","نسخ / مشاركة","عدد من انضموا برابطك","تم النسخ"],ary:["رابط الدعوة ديالك","نسخ / مشاركة","شحال تسجلو بالرابط ديالك","تنسخ"]};const w=W[lg]||W.en;const link=BASE+"index.html?ref="+encodeURIComponent(p.referral_code);if(nref==null){const q=await SB.rpc("claim_referral",{c:""});nref=q.error?0:q.data}h+='<div class="muted" style="margin-top:8px">'+w[0]+':</div><input readonly value="'+esc(link)+'" onclick="this.select()"><button id="shr">'+w[1]+'</button><div class="muted">'+w[2]+': <b>'+(nref||0)+'</b></div>';window._shr=[link,w[3]]}
 h+='</div>';
 if(p?.role==="admin")h+='<a class="btn" href="dashboard.html">'+T('admin')+'</a>';
 if(ch)h+='<a class="btn" href="publish.html">'+T('pub')+'</a>';if(ch)h+='<div class="card">'+T('yours')+' <a href="channel.html?h='+encodeURIComponent(ch.handle)+'">@'+esc(ch.handle)+'</a></div>';
 else h+='<div class="card"><b>'+T('mk_title')+'</b><input id="hd" placeholder="'+T('handle')+'"><input id="nm" placeholder="'+T('cname')+'"><textarea id="bio" placeholder="'+T('bio')+'" rows="2"></textarea><button id="mk">'+T('mk')+'</button><div id="msg" class="muted"></div></div>';
 h+='<button class="alt" id="out">'+T('signout')+'</button>';app.innerHTML=h;
-document.getElementById("out").onclick=async()=>{await SB.auth.signOut();show()};
+const sb=document.getElementById("shr");if(sb)sb.onclick=async()=>{const[l,ok]=window._shr;if(navigator.share){try{await navigator.share({title:"RIMAZ",url:l})}catch(e){}}else{try{await navigator.clipboard.writeText(l);sb.textContent=ok}catch(e){prompt("",l)}}};document.getElementById("out").onclick=async()=>{await SB.auth.signOut();show()};
 const mk=document.getElementById("mk");if(mk)mk.onclick=async()=>{const handle=hd.value.trim().toLowerCase();
 if(!/^[a-z0-9_]{3,30}$/.test(handle)){msg.textContent=T('badhandle');return}
 const r=await SB.from("channels").insert({owner_id:u.id,handle,name:nm.value.trim()||handle,bio:bio.value.trim()});
