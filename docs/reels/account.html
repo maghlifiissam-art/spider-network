@@ -4,7 +4,7 @@
 <p class="muted"><a href="privacy.html" data-i="privacy"></a> &middot; <a href="terms.html" data-i="terms"></a></p>
 <script src="i18n.js"></script><script src="common.js"></script><script>
 const app=document.getElementById("app");
-async function show(){const{data:{session}}=await SB.auth.getSession();if(!session)return login();
+async function show(){const{data:{session}}=await SB.auth.getSession();if(!session)return login();{const rt=sessionStorage.getItem("rimaz_ret");if(rt&&/^[\w.-]+\.html(#post=[\w-]+)?$/.test(rt)){sessionStorage.removeItem("rimaz_ret");location.replace(rt);return}}
 const u=session.user;let nref=null;try{const rc=localStorage.getItem("rimaz_ref");if(rc){const q=await SB.rpc("claim_referral",{c:rc});localStorage.removeItem("rimaz_ref");if(!q.error)nref=q.data}}catch(e){}const{data:p}=await SB.from("profiles").select("*").eq("id",u.id).maybeSingle();
 const{data:ch}=await SB.from("channels").select("*").eq("owner_id",u.id).maybeSingle();
 let h='<div class="card"><b>'+esc(u.user_metadata?.full_name||u.email)+'</b><div class="muted">'+esc(u.email)+' &middot; '+T('role')+': '+esc(p?.role||"user")+'</div>';
