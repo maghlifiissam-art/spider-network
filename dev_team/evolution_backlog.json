@@ -90,6 +90,22 @@
     "measurable": true,
     "testable": true
    }
+  },
+  {
+   "id": "members-per-country",
+   "title": "Per-country member counters (deferred until the project grows)",
+   "state": "deferred",
+   "impact": 3,
+   "effort_inverse": 3,
+   "metric": "registered members per country",
+   "gates": {
+    "free_tier_only": true,
+    "no_secrets_in_repo": true,
+    "low_data_ok": false,
+    "measurable": true,
+    "testable": true
+   },
+   "needs": "Country at signup (optional field stored in profiles) or privacy-safe geo inference (country code only, no IP stored). Then add sibling public view member_stats_country(country, members) next to existing public.member_stats(members); docs/reels/members.js contract stays unchanged."
   }
  ]
 }
