@@ -1,7 +1,7 @@
 /* First-view fix: landscape posters use contain (no dark crop) and an unstarted reel shows a play hint. */
 (function () {
   var s = document.createElement("style");
-  s.textContent = ".card .fvp{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);width:72px;height:72px;border-radius:50%;background:#070714b8;border:2px solid #d4a017;color:#d4a017;font:700 30px/68px system-ui;text-align:center;z-index:6;pointer-events:none}";
+  s.textContent = ".card>.fvp{position:absolute!important;left:50%;top:42%;margin:0!important;transform:translate(-50%,-50%);width:72px;height:72px;border-radius:50%;background:#070714b8;border:2px solid #d4a017;color:#d4a017;font:700 30px/68px system-ui;text-align:center;z-index:6;pointer-events:none}";
   document.head.appendChild(s);
   function prep(v) {
     if (v.dataset.fv) return;
