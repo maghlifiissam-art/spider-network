@@ -1,0 +1,21 @@
+{
+  "schema": "support_evidence.v1",
+  "source_url": "https://maghlifiissam-art.github.io/spider-network/reels/support.html",
+  "repo_path": "docs/reels/support.html",
+  "revision": "005968877185d8f459a0380b29ba7b98ecbe3d8f",
+  "sha256": "02761adda887c2e69557359fbc312bf970abebab785975f3c7aafb69c424a381",
+  "templates": {
+    "en": {
+      "report_problem": "Use the Report button on a store or product, or send a request below."
+    },
+    "fr": {
+      "report_problem": "Utilisez le bouton Signaler sur une boutique ou un produit, ou envoyez une demande ci-dessous."
+    },
+    "ar": {
+      "report_problem": "استعمل زر الإبلاغ في المتجر أو المنتج، أو أرسل طلباً بالأسفل."
+    },
+    "ary": {
+      "report_problem": "استعمل زر التبليغ فالمتجر ولا المنتج، ولا صيفط طلب لتحت."
+    }
+  }
+}
