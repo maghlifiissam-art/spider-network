@@ -86,5 +86,7 @@ def run_chain(client: Groq, agent_type: str, topic: str, language: str = "الع
         "sources_used": sources_used,
         "draft": draft,
         "review": review,
-        "final_note": "✅ جاهز للنشر" if review.get("verdict") == "ok" else "⚠️ يحتاج مراجعة يدوية قبل النشر",
+        "final_note": "مسودة؛ يلزم التحقق من الحقائق قبل النشر",
+        "release_allowed": False,
+        "verification_required": True,
     }
