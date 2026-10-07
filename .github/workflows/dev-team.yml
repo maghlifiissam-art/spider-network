@@ -1,0 +1,37 @@
+name: Automatic Development Team - measure, analyze, guide
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 */6 * * *'   # every 6 hours
+
+permissions:
+  contents: write
+
+concurrency:
+  group: dev-team
+  cancel-in-progress: false
+
+jobs:
+  loop:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Tests
+        run: PYTHONPATH=. python tests/test_dev_team.py
+      - name: Measure (public data only)
+        run: python -m dev_team.measure
+      - name: Analyze and write guidance
+        run: python -m dev_team.analyze
+      - name: Pick next platform evolution item
+        run: python -m dev_team.platform_evolution | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Commit data and insights
+        run: |
+          git config user.name "dev-team-spider"
+          git config user.email "dev-team@users.noreply.github.com"
+          git add dev_team/data dev_team/insights
+          git diff --cached --quiet || (git commit -m "dev-team: measurement + insights $(date -u +%F\ %H:%M)" && git pull --rebase && git push)
