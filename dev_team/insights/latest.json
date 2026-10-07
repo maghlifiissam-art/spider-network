@@ -1,0 +1,116 @@
+{
+ "generated_at": "2026-10-07T22:34:04+00:00",
+ "posts_total": 17,
+ "posts_learnable": 15,
+ "min_posts": 30,
+ "global_mean_score": 0.0267,
+ "features": {
+  "format": {
+   "video": {
+    "n": 10,
+    "adj_score": 0.0089,
+    "raw_mean": 0.0
+   },
+   "text": {
+    "n": 5,
+    "adj_score": 0.0533,
+    "raw_mean": 0.08
+   }
+  },
+  "topic": {
+   "general": {
+    "n": 10,
+    "adj_score": 0.0089,
+    "raw_mean": 0.0
+   },
+   "news": {
+    "n": 5,
+    "adj_score": 0.0533,
+    "raw_mean": 0.08
+   }
+  },
+  "title_question": {
+   "statement": {
+    "n": 14,
+    "adj_score": 0.0281,
+    "raw_mean": 0.0286
+   },
+   "question": {
+    "n": 1,
+    "adj_score": 0.0222,
+    "raw_mean": 0.0
+   }
+  },
+  "title_length": {
+   "short(<=3w)": {
+    "n": 8,
+    "adj_score": 0.0103,
+    "raw_mean": 0.0
+   },
+   "medium(4-6w)": {
+    "n": 7,
+    "adj_score": 0.0444,
+    "raw_mean": 0.0571
+   }
+  },
+  "title_has_number": {
+   "no_number": {
+    "n": 13,
+    "adj_score": 0.0296,
+    "raw_mean": 0.0308
+   },
+   "number": {
+    "n": 2,
+    "adj_score": 0.019,
+    "raw_mean": 0.0
+   }
+  },
+  "post_hour": {
+   "evening(18-23)": {
+    "n": 11,
+    "adj_score": 0.0208,
+    "raw_mean": 0.0182
+   },
+   "morning(6-11)": {
+    "n": 4,
+    "adj_score": 0.037,
+    "raw_mean": 0.05
+   }
+  }
+ },
+ "top_posts": [
+  {
+   "id": "249ab385-320e-4e20-89cc-ae531375dc2b",
+   "title": "كيفاش تفتح متجرك فريماز 🛍️",
+   "views": 3,
+   "score": 0.2
+  },
+  {
+   "id": "7a80c2a4-df7c-48b0-864a-c8ee73526654",
+   "title": "ثمن رمزي لأول المتاجر",
+   "views": 1,
+   "score": 0.2
+  },
+  {
+   "id": "41dfaf25-2740-4342-9e98-ce3c2d437cf5",
+   "title": "الواي فاي عنيد",
+   "views": 1,
+   "score": 0.0
+  },
+  {
+   "id": "db18331d-fd1e-4f9d-9781-1e54f7d9915c",
+   "title": "فين مشات التقاشر؟",
+   "views": 1,
+   "score": 0.0
+  },
+  {
+   "id": "12709899-17fe-4ee2-ba46-9b2c2c28a718",
+   "title": "تسعة وتسعين فالمية",
+   "views": 1,
+   "score": 0.0
+  }
+ ],
+ "status": "collecting",
+ "winners": [],
+ "note": "15/30 learnable posts: no recommendations until enough data"
+}
