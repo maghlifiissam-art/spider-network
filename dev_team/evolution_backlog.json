@@ -1,0 +1,95 @@
+{
+ "items": [
+  {
+   "id": "watch-signals",
+   "title": "Watch-time / completion events (watch_events table + client beacon)",
+   "state": "evaluated",
+   "impact": 5,
+   "effort_inverse": 3,
+   "metric": "avg completion rate",
+   "gates": {
+    "free_tier_only": true,
+    "no_secrets_in_repo": true,
+    "low_data_ok": true,
+    "measurable": true,
+    "testable": true
+   },
+   "needs": "Supabase SQL migration run in dashboard"
+  },
+  {
+   "id": "ai-captions",
+   "title": "Auto captions/translation via Groq free API",
+   "state": "evaluated",
+   "impact": 4,
+   "effort_inverse": 3,
+   "metric": "views per post in non-AR languages",
+   "gates": {
+    "free_tier_only": true,
+    "no_secrets_in_repo": true,
+    "low_data_ok": true,
+    "measurable": true,
+    "testable": true
+   }
+  },
+  {
+   "id": "smart-thumbnails",
+   "title": "Poster picked by the best-scoring frame style",
+   "state": "candidate",
+   "impact": 3,
+   "effort_inverse": 3,
+   "metric": "views per impression",
+   "gates": {
+    "free_tier_only": true,
+    "no_secrets_in_repo": true,
+    "low_data_ok": true,
+    "measurable": false,
+    "testable": true
+   }
+  },
+  {
+   "id": "hook-first-2s",
+   "title": "First-2-seconds hook template for generated promo videos",
+   "state": "evaluated",
+   "impact": 4,
+   "effort_inverse": 4,
+   "metric": "completion rate",
+   "gates": {
+    "free_tier_only": true,
+    "no_secrets_in_repo": true,
+    "low_data_ok": true,
+    "measurable": true,
+    "testable": true
+   }
+  },
+  {
+   "id": "web-push",
+   "title": "Web Push notifications (free VAPID)",
+   "state": "candidate",
+   "impact": 4,
+   "effort_inverse": 2,
+   "metric": "D7 return rate",
+   "gates": {
+    "free_tier_only": true,
+    "no_secrets_in_repo": true,
+    "low_data_ok": true,
+    "measurable": false,
+    "testable": true
+   }
+  },
+  {
+   "id": "image-opt",
+   "title": "AVIF/WebP + lazy loading audit for low-data",
+   "state": "evaluated",
+   "impact": 3,
+   "effort_inverse": 4,
+   "metric": "page weight KB",
+   "gates": {
+    "free_tier_only": true,
+    "no_secrets_in_repo": true,
+    "low_data_ok": true,
+    "measurable": true,
+    "testable": true
+   }
+  }
+ ]
+}
