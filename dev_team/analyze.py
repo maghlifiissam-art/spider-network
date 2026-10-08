@@ -101,7 +101,36 @@ def write_outputs(result, out_dir=None):
     return out_dir
 
 
+def funnel_report(path=None):
+    """v1.1: registered vs publishing creators vs viewer signals, latest + change since previous run."""
+    p = Path(path or HERE / "data" / "funnel.jsonl")
+    snaps = [json.loads(l) for l in p.read_text(encoding="utf-8").splitlines() if l.strip()] if p.exists() else []
+    if not snaps:
+        return {"status": "no_data"}
+    last, prev = snaps[-1], (snaps[-2] if len(snaps) > 1 else None)
+    def d(a, b):
+        return None if a is None or b is None else a - b
+    out = {"latest": last, "snapshots": len(snaps), "target_publishing_creators": 1000,
+           "progress_pct": round(100 * last["publishing_creators"] / 1000, 2)}
+    if prev:
+        out["since_previous"] = {"registered_accounts": d(last["registered_accounts"], prev["registered_accounts"]),
+                                 "publishing_creators": d(last["publishing_creators"], prev["publishing_creators"]),
+                                 "views": d(last["viewer"]["views"], prev["viewer"]["views"])}
+    if last["registered_accounts"]:
+        out["activation_rate"] = round(last["publishing_creators"] / last["registered_accounts"], 4)
+    return out
+
+
+def write_funnel(out_dir=None):
+    rep = funnel_report()
+    out_dir = Path(out_dir or HERE / "insights"); out_dir.mkdir(exist_ok=True)
+    (out_dir / "funnel.json").write_text(json.dumps(rep, ensure_ascii=False, indent=1), encoding="utf-8")
+    return rep
+
+
 if __name__ == "__main__":
     res = analyze(latest_snapshot())
     write_outputs(res)
+    rep = write_funnel()
+    print("funnel:", rep.get("latest", {}).get("publishing_creators"), "publishing creators")
     print(res["status"], res["posts_learnable"], "learnable;", len(res["winners"]), "winners")
