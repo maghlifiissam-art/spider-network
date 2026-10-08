@@ -1,6 +1,6 @@
-const C='reels-v14';
+const C='reels-v15';
 self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(C).then(c=>c.addAll(['./','index.html','common.js','i18n.js','icon.svg','feed.json','manifest.webmanifest']).catch(()=>{})))});
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x.startsWith('reels-')&&x!==C).map(x=>caches.delete(x)))).then(()=>self.clients.claim())));
 self.addEventListener('fetch',e=>{const r=e.request;if(r.method!=='GET')return;const u=new URL(r.url);const st=(u.origin===location.origin&&(/\.(html|js|svg|json|webmanifest)$/.test(u.pathname)||u.pathname.endsWith('/')))||u.hostname==='cdn.jsdelivr.net';if(!st)return;
 const navigation=r.mode==='navigate';const key=navigation?new Request(u.origin+u.pathname):r;
-e.respondWith((async()=>{try{let request=r;if(navigation){u.searchParams.set('rimaz_sw','14');request=new Request(u,{cache:'no-store',credentials:r.credentials,redirect:'follow'})}const response=await fetch(request,{cache:navigation?'no-store':'no-cache'});if(response.ok){const c=await caches.open(C);await c.put(key,response.clone())}return response}catch(err){const c=await caches.open(C);const cached=await c.match(key);return cached||Response.error()}})())});
+e.respondWith((async()=>{try{let request=r;if(navigation){u.searchParams.set('rimaz_sw','15');request=new Request(u,{cache:'no-store',credentials:r.credentials,redirect:'follow'})}const response=await fetch(request,{cache:navigation?'no-store':'no-cache'});if(response.ok){const c=await caches.open(C);await c.put(key,response.clone())}return response}catch(err){const c=await caches.open(C);const cached=await c.match(key);return cached||Response.error()}})())});
