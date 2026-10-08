@@ -23,7 +23,9 @@ jobs:
           python-version: '3.11'
       - name: Tests
         run: PYTHONPATH=. python tests/test_dev_team.py
-      - name: Measure (public data only)
+      - name: Measure (public data + optional admin count)
+        env:
+          RIMAZ_SB_SERVICE: ${{ secrets.RIMAZ_SB_SERVICE }}
         run: python -m dev_team.measure
       - name: Analyze and write guidance
         run: python -m dev_team.analyze
