@@ -9,3 +9,11 @@ Closed loop: measure -> analyze -> guide, plus a platform-evolution track.
 - Loop: `.github/workflows/dev-team.yml` every 6 h, commits data back to main. No human input.
 
 Known gap (v2): watch time / completion is not stored yet. See backlog item `watch-signals`.
+
+## v1.1 funnel (target: 1000 publishing creators)
+
+`measure.py` also appends one snapshot per run to `data/funnel.jsonl`; `analyze.py` writes `insights/funnel.json` (latest, change since previous run, progress vs 1000, activation rate).
+Three distinct counts:
+1. `registered_accounts` - needs optional CI secret `RIMAZ_SB_SERVICE` (auth.users is not public). Without it the value is `null` (unknown), never guessed. Not a public counter.
+2. `publishing_creators` - **activation rule: an account owning a channel with >=1 published, non-sponsored, non-pinned post, excluding platform-owned channels** (spider channel, demo seed). Public data only.
+3. `viewer` - views, likes, comments, reactions, posts total / by outside creators, views on outside creators' posts. Public data only.
