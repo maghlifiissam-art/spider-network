@@ -34,6 +34,26 @@ def test_evolution_gates_and_pick():
     assert pe.score(bad) == -1
     assert pe.verify({}, 10, 9) == "revert" and pe.verify({}, 10, 10) == "keep"
 
+def test_funnel_counts():
+    from dev_team import measure
+    rows = [mk(i, "x", 10, 1) for i in range(4)]
+    for r, c in zip(rows, ["a", "a", "b", "p"]): r["channel_id"] = c
+    rows[0]["pinned"] = True
+    ch = {"a": "u1", "b": "u2", "p": next(iter(measure.PLATFORM_OWNERS))}
+    f = measure.funnel(rows, None, ch)
+    assert f["registered_accounts"] is None          # unknown, never guessed
+    assert f["publishing_creators"] == 2              # u1 (one non-pinned post), u2; platform owner excluded
+    assert f["viewer"]["views"] == 40
+
+def test_funnel_report_delta():
+    import tempfile
+    p = Path(tempfile.mkdtemp()) / "f.jsonl"
+    s = lambda c, v, r: json.dumps({"t": "x", "registered_accounts": r, "publishing_creators": c, "viewer": {"views": v}})
+    p.write_text(s(1, 10, 5) + "\n" + s(3, 25, 9) + "\n")
+    r = analyze.funnel_report(p)
+    assert r["since_previous"] == {"registered_accounts": 4, "publishing_creators": 2, "views": 15}
+    assert r["activation_rate"] == round(3 / 9, 4)
+
 if __name__ == "__main__":
     for n, f in list(globals().items()):
         if n.startswith("test_"):
