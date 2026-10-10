@@ -3,5 +3,5 @@
 Status: ready (34 learnable posts)
 
 Data-backed preferences (apply to new titles/hooks/schedule):
-- topic = general (n=16, 1.71x vs next best)
-- title_has_number = no_number (n=27, 1.33x vs next best)
+- topic = general (n=16, 1.67x vs next best)
+- title_has_number = no_number (n=27, 1.37x vs next best)
