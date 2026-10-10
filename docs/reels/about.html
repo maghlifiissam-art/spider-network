@@ -7,4 +7,4 @@ const app=document.getElementById("app");const ES=s=>String(s).replace(/[&<>"]/g
 function blk(k){const s=S[k];return '<div class="card" dir="'+(k==="ar"?"rtl":"ltr")+'"><b>'+ES(s.l)+'</b><p class="tx">'+ES(s.st)+'</p><button data-k="'+k+'">'+ES(s.c)+'</button></div>'}
 app.innerHTML='<h3>'+ES(X("h"))+'</h3>'+blk(LG==="ar"?"ar":"en")+blk(LG==="ar"?"en":"ar");
 app.onclick=async e=>{const b=e.target.closest("button[data-k]");if(!b)return;const t=S[b.dataset.k].st;try{await navigator.clipboard.writeText(t);b.textContent=X("ok")}catch(_){prompt("",t)}};
-</script></body></html>
+</script><script>if("serviceWorker"in navigator){const hc=!!navigator.serviceWorker.controller;let rl=0;navigator.serviceWorker.addEventListener("controllerchange",()=>{if(hc&&!rl){rl=1;location.reload()}});navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>{r.update().catch(()=>{});document.addEventListener("visibilitychange",()=>{if(!document.hidden)r.update().catch(()=>{})})}).catch(()=>{})};</script></body></html>

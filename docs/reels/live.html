@@ -21,4 +21,4 @@ const gl=document.getElementById("gl");if(gl)gl.onclick=async()=>{const t=lt.val
 const r=await SB.from("lives").insert({owner_id:me.id,channel_id:ch.id,title:t}).select("*").single();if(r.error){msg.textContent=r.error.message;return}open_(r.data,true)};
 app.querySelectorAll("[data-j]").forEach(b=>b.onclick=()=>{const l=(ls||[]).find(x=>x.id===b.dataset.j);open_(l,me&&l.owner_id===me.id)})}
 load();
-</script></body></html>
+</script><script>if("serviceWorker"in navigator){const hc=!!navigator.serviceWorker.controller;let rl=0;navigator.serviceWorker.addEventListener("controllerchange",()=>{if(hc&&!rl){rl=1;location.reload()}});navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>{r.update().catch(()=>{});document.addEventListener("visibilitychange",()=>{if(!document.hidden)r.update().catch(()=>{})})}).catch(()=>{})};</script></body></html>

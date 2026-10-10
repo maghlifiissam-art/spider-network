@@ -57,4 +57,4 @@ media_url=SB.storage.from("media").getPublicUrl(path).data.publicUrl}
 const r=await SB.from("posts").insert({owner_id:u.id,channel_id:ch.id,kind:kind2,topic,title:title||null,body:body||null,media_url,poster_url,...(src||{}),series_id,season,episode,rights_confirmed:rights});
 if(r.error){msg.textContent=r.error.message;return}
 msg.textContent=T("posted");setTimeout(()=>location.href=sf?"series.html?id="+series_id:"channel.html?h="+encodeURIComponent(ch.handle),700)}})().then(()=>{clearTimeout(pageWatch);pageBox.removeAttribute("role")}).catch(pageFailure);
-</script></body></html>
+</script><script>if("serviceWorker"in navigator){const hc=!!navigator.serviceWorker.controller;let rl=0;navigator.serviceWorker.addEventListener("controllerchange",()=>{if(hc&&!rl){rl=1;location.reload()}});navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>{r.update().catch(()=>{});document.addEventListener("visibilitychange",()=>{if(!document.hidden)r.update().catch(()=>{})})}).catch(()=>{})};</script></body></html>

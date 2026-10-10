@@ -16,4 +16,4 @@ if(C.length)h+="<h3>"+ES(X("ch"))+"</h3>"+C.map(c=>'<div class="card"><a href="c
 if(P.length)h+="<h3>"+ES(X("re"))+"</h3>"+P.map(p=>'<div class="card"><a href="channel.html?h='+encodeURIComponent(p.channels?p.channels.handle:"")+'"><b>'+ES(p.title||p.body||"")+'</b></a><div style="opacity:.7;font-size:13px">'+ES(p.channels?p.channels.name:"")+'</div></div>').join("");
 res.innerHTML=h||'<p style="opacity:.7">'+ES(X("no"))+'</p>'}catch(e){if(my===seq)searchFailure(res,v)}finally{clearTimeout(timeout)}}
 document.getElementById("q").oninput=e=>{clearTimeout(tm);tm=setTimeout(()=>go(e.target.value),250)};
-</script></body></html>
+</script><script>if("serviceWorker"in navigator){const hc=!!navigator.serviceWorker.controller;let rl=0;navigator.serviceWorker.addEventListener("controllerchange",()=>{if(hc&&!rl){rl=1;location.reload()}});navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>{r.update().catch(()=>{});document.addEventListener("visibilitychange",()=>{if(!document.hidden)r.update().catch(()=>{})})}).catch(()=>{})};</script></body></html>

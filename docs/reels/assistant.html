@@ -19,4 +19,4 @@ const ask=t=>{bub(t,1);const w=norm(t).split(/[^\p{L}\p{N}$]+/u).filter(x=>x.len
 bub(T2.hi,0);document.getElementById("ch").innerHTML=T2.sug.map(s=>'<button class="btn alt sg" style="background:#ffffff1c;color:#f1efff;font-size:13px">'+esc(s)+'</button>').join("");
 document.getElementById("ch").onclick=e=>{const b=e.target.closest(".sg");if(b)ask(b.textContent)};
 sd.onclick=()=>{const t=q.value.trim();if(!t)return;q.value="";ask(t)};q.onkeydown=e=>{if(e.key==="Enter")sd.click()};
-</script></body></html>
+</script><script>if("serviceWorker"in navigator){const hc=!!navigator.serviceWorker.controller;let rl=0;navigator.serviceWorker.addEventListener("controllerchange",()=>{if(hc&&!rl){rl=1;location.reload()}});navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>{r.update().catch(()=>{});document.addEventListener("visibilitychange",()=>{if(!document.hidden)r.update().catch(()=>{})})}).catch(()=>{})};</script></body></html>

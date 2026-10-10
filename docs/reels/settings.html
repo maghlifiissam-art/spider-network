@@ -29,4 +29,4 @@ bindLang();const pmsg=t=>pmg.textContent=t;ps.onclick=async()=>{if(pa.value.trim
 sv.onclick=async()=>{const r=await SB.from("profiles").update({display_name:dn.value.trim()||null}).eq("id",u.id);m1.textContent=r.error?r.error.message:X("saved")};
 cp.onclick=async()=>{if(pw.value.length<6){m2.textContent=X("npw");return}const r=await SB.auth.updateUser({password:pw.value});m2.textContent=r.error?r.error.message:X("pwok");if(!r.error)pw.value=""};
 so.onclick=async()=>{await SB.auth.signOut();location.href="index.html"}})();
-</script></body></html>
+</script><script>if("serviceWorker"in navigator){const hc=!!navigator.serviceWorker.controller;let rl=0;navigator.serviceWorker.addEventListener("controllerchange",()=>{if(hc&&!rl){rl=1;location.reload()}});navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>{r.update().catch(()=>{});document.addEventListener("visibilitychange",()=>{if(!document.hidden)r.update().catch(()=>{})})}).catch(()=>{})};</script></body></html>

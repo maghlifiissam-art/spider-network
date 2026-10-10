@@ -14,4 +14,4 @@ if(!ids.length){app.innerHTML=h+'<p style="opacity:.7">'+ES(X("fn"))+'</p>';retu
 const{data:cs}=await SB.from("channels").select("owner_id,handle,name").in("owner_id",ids);const m={};(cs||[]).forEach(c=>m[c.owner_id]=c);
 h+=ids.map(i=>m[i]?'<div class="card"><a href="channel.html?h='+encodeURIComponent(m[i].handle)+'"><b>'+ES(m[i].name)+'</b></a> <span style="opacity:.7">@'+ES(m[i].handle)+'</span></div>':'<div class="card" style="opacity:.7">&bull;</div>').join("");
 app.innerHTML=h})();
-</script></body></html>
+</script><script>if("serviceWorker"in navigator){const hc=!!navigator.serviceWorker.controller;let rl=0;navigator.serviceWorker.addEventListener("controllerchange",()=>{if(hc&&!rl){rl=1;location.reload()}});navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>{r.update().catch(()=>{});document.addEventListener("visibilitychange",()=>{if(!document.hidden)r.update().catch(()=>{})})}).catch(()=>{})};</script></body></html>

@@ -23,4 +23,4 @@ const g=GOALS.find(x=>views<x.views||creators<x.creators)||GOALS[GOALS.length-1]
 document.getElementById("st").innerHTML=done?'<div class="k"><b style="font-size:18px">'+esc(X("done"))+'</b></div>':bar(views,g.views,X("v"))+bar(creators,g.creators,X("c"));
 document.getElementById("ud").textContent=X("upd")+": "+new Date().toLocaleTimeString();}catch(e){document.getElementById("st").innerHTML='<p class="n" role="alert">'+esc(X("err"))+'</p>'}}
 load();setInterval(load,60000);
-</script></body></html>
+</script><script>if("serviceWorker"in navigator){const hc=!!navigator.serviceWorker.controller;let rl=0;navigator.serviceWorker.addEventListener("controllerchange",()=>{if(hc&&!rl){rl=1;location.reload()}});navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>{r.update().catch(()=>{});document.addEventListener("visibilitychange",()=>{if(!document.hidden)r.update().catch(()=>{})})}).catch(()=>{})};</script></body></html>
