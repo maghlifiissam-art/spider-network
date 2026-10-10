@@ -39,7 +39,7 @@ try{await (stage.requestFullscreen||stage.webkitRequestFullscreen).call(stage);i
 window.RimazPlayer={open,close};
 for(const ev of ['fullscreenchange','webkitfullscreenchange'])document.addEventListener(ev,()=>{if(active&&!document.fullscreenElement&&!document.webkitFullscreenElement)restore()});
 window.addEventListener('resize',fit);document.addEventListener('keydown',e=>{if(active&&e.key==='Escape')close()});
-function attach(video){if(video.closest('.rimaz-stage,.rimaz-video-wrap,.card.v,.gc')||!video.parentElement)return;const wrap=document.createElement('div');wrap.className='rimaz-video-wrap';video.before(wrap);wrap.append(video);const b=document.createElement('button');b.type='button';b.className='rimaz-fullscreen-button';b.textContent='⛶';b.title=text[0];b.setAttribute('aria-label',text[0]);b.onclick=e=>{e.stopPropagation();open(video)};wrap.append(b)}
+function attach(video){if(video.closest('.rimaz-stage,.rimaz-video-wrap,.card.v,.gc')||!video.parentElement)return;const wrap=document.createElement('div');wrap.className='rimaz-video-wrap';video.before(wrap);wrap.append(video);const b=document.createElement('button');b.type='button';b.className='rimaz-fullscreen-button';b.textContent='⛶';b.title=text[0];b.setAttribute('aria-label',text[0]);b.style.display='none';b.onclick=e=>{e.stopPropagation();open(video)};const upd=()=>{b.style.display=video.videoWidth>video.videoHeight?'':'none'};video.addEventListener('loadedmetadata',upd);if(video.readyState>=1)upd();wrap.append(b);upd()}
 function scan(){document.querySelectorAll('video').forEach(attach)}
 new MutationObserver(scan).observe(document.body,{childList:true,subtree:true});scan();
 })();
