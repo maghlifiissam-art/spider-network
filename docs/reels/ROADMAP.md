@@ -30,3 +30,12 @@ Start only once the full flow works end to end (login, channel, upload, follow, 
 Support for all: low-data mode, referral codes (invite a friend), short feedback form inside the app.
 Metrics: sign-ups, creators with a channel, reels posted, follows, day-7 return rate.
 Money and legal choices (ads, payouts, terms) go to the owner first.
+
+## Backlog (from external reviews, 11 Oct 2026 - design only, no build yet)
+1. Cash on delivery (COD) for the store checkout.
+2. Escrow / Trust Score between buyer and seller.
+3. Automatic Darija captions: Whisper on Cloudflare Workers AI (free tier), candidate for studio Phase 1.
+4. Earnings transparency dashboard for the 70/30 split.
+5. Lite mode (ultra-low-bandwidth version of the feed).
+6. Hosting migration: move the static app from GitHub Pages to Cloudflare Pages once the store/payments go live (GitHub Pages terms disallow hosting a commercial SaaS/transactions site). Zero cost, same repo, attach the rimaz.org domain there.
+Store launch timing is the owner's decision.
