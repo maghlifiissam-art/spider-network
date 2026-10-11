@@ -39,3 +39,9 @@ Money and legal choices (ads, payouts, terms) go to the owner first.
 5. Lite mode (ultra-low-bandwidth version of the feed).
 6. Hosting migration: move the static app from GitHub Pages to Cloudflare Pages once the store/payments go live (GitHub Pages terms disallow hosting a commercial SaaS/transactions site). Zero cost, same repo, attach the rimaz.org domain there.
 Store launch timing is the owner's decision.
+
+## Backlog additions (UX review, 11 Oct 2026 - design only)
+7. Duet / remix between creators.
+8. Creator studio with per-reel statistics.
+9. Advanced PWA (install prompt, offline shell).
+10. Sidebar simplification review: current top nav is 4 labeled items (Home, Reels, News, Publish); revisit only if it grows.
