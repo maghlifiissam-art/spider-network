@@ -1,4 +1,4 @@
-name: Blog Draft (daily, RSS)
+name: Blog Draft + Publish (daily, RSS)
 
 on:
   schedule:
@@ -21,10 +21,14 @@ jobs:
         env:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
         run: python blog_spider.py
-      - name: Commit draft
+      - name: Review and publish pending drafts
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+        run: python publish_blog.py
+      - name: Commit draft + published posts
         run: |
           git config user.name "blog-spider"
           git config user.email "blog-spider@users.noreply.github.com"
-          git add blog
-          git diff --cached --quiet || git commit -m "Blog draft $(date -u +%F)"
+          git add blog docs/posts docs/index.html
+          git diff --cached --quiet || git commit -m "Blog draft + publish $(date -u +%F)"
           git push
