@@ -1,109 +1,115 @@
 {
- "generated_at": "2026-10-12T05:59:39+00:00",
+ "generated_at": "2026-10-12T15:27:13+00:00",
  "posts_total": 36,
  "posts_learnable": 34,
  "min_posts": 30,
- "global_mean_score": 0.1561,
+ "global_mean_score": 0.1614,
  "features": {
   "format": {
    "video": {
     "n": 10,
-    "adj_score": 0.1658,
-    "raw_mean": 0.1706
+    "adj_score": 0.1664,
+    "raw_mean": 0.1689
    },
    "text": {
     "n": 5,
-    "adj_score": 0.118,
+    "adj_score": 0.1207,
     "raw_mean": 0.08
    },
    "video/series": {
     "n": 13,
-    "adj_score": 0.1545,
-    "raw_mean": 0.1538
+    "adj_score": 0.1671,
+    "raw_mean": 0.1692
    },
    "image": {
     "n": 6,
-    "adj_score": 0.18,
+    "adj_score": 0.1825,
     "raw_mean": 0.2
    }
   },
   "topic": {
    "general": {
     "n": 16,
-    "adj_score": 0.1756,
-    "raw_mean": 0.1817
+    "adj_score": 0.176,
+    "raw_mean": 0.1805
    },
    "news": {
     "n": 5,
-    "adj_score": 0.118,
+    "adj_score": 0.1207,
     "raw_mean": 0.08
    },
    "films": {
     "n": 13,
-    "adj_score": 0.1545,
-    "raw_mean": 0.1538
+    "adj_score": 0.1671,
+    "raw_mean": 0.1692
    }
   },
   "title_question": {
    "statement": {
     "n": 33,
-    "adj_score": 0.1564,
-    "raw_mean": 0.1565
+    "adj_score": 0.1622,
+    "raw_mean": 0.1623
    },
    "question": {
     "n": 1,
-    "adj_score": 0.1539,
-    "raw_mean": 0.1429
+    "adj_score": 0.1567,
+    "raw_mean": 0.1333
    }
   },
   "title_length": {
    "short(<=3w)": {
     "n": 8,
-    "adj_score": 0.1619,
-    "raw_mean": 0.1656
+    "adj_score": 0.1626,
+    "raw_mean": 0.1634
    },
    "medium(4-6w)": {
     "n": 11,
-    "adj_score": 0.1476,
+    "adj_score": 0.1493,
     "raw_mean": 0.1438
    },
    "long(7w+)": {
     "n": 15,
-    "adj_score": 0.159,
-    "raw_mean": 0.16
+    "adj_score": 0.1704,
+    "raw_mean": 0.1733
    }
   },
   "title_has_number": {
    "no_number": {
     "n": 27,
-    "adj_score": 0.1663,
-    "raw_mean": 0.1681
+    "adj_score": 0.1728,
+    "raw_mean": 0.1749
    },
    "number": {
     "n": 7,
-    "adj_score": 0.1289,
+    "adj_score": 0.1312,
     "raw_mean": 0.1095
    }
   },
   "post_hour": {
    "evening(18-23)": {
     "n": 13,
-    "adj_score": 0.1493,
-    "raw_mean": 0.1467
+    "adj_score": 0.1498,
+    "raw_mean": 0.1453
    },
    "morning(6-11)": {
     "n": 10,
-    "adj_score": 0.1454,
-    "raw_mean": 0.14
+    "adj_score": 0.1605,
+    "raw_mean": 0.16
    },
    "night(0-5)": {
     "n": 11,
-    "adj_score": 0.1738,
+    "adj_score": 0.1754,
     "raw_mean": 0.1818
    }
   }
  },
  "top_posts": [
+  {
+   "id": "287bfcaf-0de8-47c3-8c76-ea5fac451e35",
+   "title": "حِرَف اليابان الحية: كنوز وطنية حية - تقرير Nexa Stories",
+   "views": 4,
+   "score": 0.4
+  },
   {
    "id": "5207a263-6d09-48c4-8517-92d1160675a7",
    "title": "قبل ما يبدا النهار",
@@ -127,12 +133,6 @@
    "title": "ثمن رمزي لأول المتاجر",
    "views": 4,
    "score": 0.2
-  },
-  {
-   "id": "e6e64473-99a9-40d6-874c-13e34e8800e8",
-   "title": "أكل الشارع: أقدم مطبخ على الأرض - تقرير Nexa Stories",
-   "views": 3,
-   "score": 0.2
   }
  ],
  "status": "ready",
@@ -141,13 +141,7 @@
    "feature": "title_has_number",
    "value": "no_number",
    "n": 27,
-   "lift_vs_next": 1.29
-  },
-  {
-   "feature": "post_hour",
-   "value": "night(0-5)",
-   "n": 11,
-   "lift_vs_next": 1.16
+   "lift_vs_next": 1.32
   }
  ]
 }

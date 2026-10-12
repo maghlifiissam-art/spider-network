@@ -3,5 +3,4 @@
 Status: ready (34 learnable posts)
 
 Data-backed preferences (apply to new titles/hooks/schedule):
-- title_has_number = no_number (n=27, 1.29x vs next best)
-- post_hour = night(0-5) (n=11, 1.16x vs next best)
+- title_has_number = no_number (n=27, 1.32x vs next best)
