@@ -1,4 +1,4 @@
-const C='reels-v27';
+const C='reels-v28';
 self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(C).then(c=>c.addAll(['index.html','common.js','i18n.js','locale.js','icon.svg','icon-192.png','feed.json','manifest.webmanifest']).catch(()=>{})))});
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x.startsWith('reels-')&&x!==C).map(x=>caches.delete(x)))).then(()=>self.clients.claim())));
 self.addEventListener('fetch',e=>{const r=e.request;if(r.method!=='GET')return;const u=new URL(r.url);const st=(u.origin===location.origin&&(/\.(html|js|svg|png|json|webmanifest)$/.test(u.pathname)||u.pathname.endsWith('/')))||u.hostname==='cdn.jsdelivr.net';if(!st)return;
