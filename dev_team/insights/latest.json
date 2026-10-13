@@ -1,138 +1,138 @@
 {
- "generated_at": "2026-10-13T00:40:53+00:00",
+ "generated_at": "2026-10-13T14:13:08+00:00",
  "posts_total": 36,
  "posts_learnable": 34,
  "min_posts": 30,
- "global_mean_score": 0.1859,
+ "global_mean_score": 0.1819,
  "features": {
   "format": {
    "video": {
     "n": 10,
-    "adj_score": 0.1746,
+    "adj_score": 0.1732,
     "raw_mean": 0.1689
    },
    "text": {
     "n": 5,
-    "adj_score": 0.133,
-    "raw_mean": 0.08
+    "adj_score": 0.1291,
+    "raw_mean": 0.0764
    },
    "video/series": {
     "n": 13,
-    "adj_score": 0.1868,
-    "raw_mean": 0.1872
+    "adj_score": 0.1841,
+    "raw_mean": 0.1849
    },
    "image": {
     "n": 6,
-    "adj_score": 0.2482,
-    "raw_mean": 0.3
+    "adj_score": 0.238,
+    "raw_mean": 0.2848
    }
   },
   "topic": {
    "general": {
     "n": 16,
-    "adj_score": 0.2104,
-    "raw_mean": 0.218
+    "adj_score": 0.2051,
+    "raw_mean": 0.2124
    },
    "news": {
     "n": 5,
-    "adj_score": 0.133,
-    "raw_mean": 0.08
+    "adj_score": 0.1291,
+    "raw_mean": 0.0764
    },
    "films": {
     "n": 13,
-    "adj_score": 0.1868,
-    "raw_mean": 0.1872
+    "adj_score": 0.1841,
+    "raw_mean": 0.1849
    }
   },
   "title_question": {
    "statement": {
     "n": 33,
-    "adj_score": 0.1873,
-    "raw_mean": 0.1875
+    "adj_score": 0.1831,
+    "raw_mean": 0.1833
    },
    "question": {
     "n": 1,
-    "adj_score": 0.1772,
+    "adj_score": 0.1738,
     "raw_mean": 0.1333
    }
   },
   "title_length": {
    "short(<=3w)": {
     "n": 8,
-    "adj_score": 0.172,
+    "adj_score": 0.1705,
     "raw_mean": 0.1634
    },
    "medium(4-6w)": {
     "n": 11,
-    "adj_score": 0.1945,
-    "raw_mean": 0.1983
+    "adj_score": 0.1875,
+    "raw_mean": 0.1901
    },
    "long(7w+)": {
     "n": 15,
-    "adj_score": 0.1882,
-    "raw_mean": 0.1889
+    "adj_score": 0.1847,
+    "raw_mean": 0.1857
    }
   },
   "title_has_number": {
    "no_number": {
     "n": 27,
-    "adj_score": 0.1964,
-    "raw_mean": 0.1983
+    "adj_score": 0.1926,
+    "raw_mean": 0.1946
    },
    "number": {
     "n": 7,
-    "adj_score": 0.158,
-    "raw_mean": 0.1381
+    "adj_score": 0.1533,
+    "raw_mean": 0.1329
    }
   },
   "post_hour": {
    "evening(18-23)": {
     "n": 13,
-    "adj_score": 0.1566,
+    "adj_score": 0.1554,
     "raw_mean": 0.1453
    },
    "morning(6-11)": {
     "n": 10,
-    "adj_score": 0.1842,
-    "raw_mean": 0.1833
+    "adj_score": 0.1797,
+    "raw_mean": 0.1786
    },
    "night(0-5)": {
     "n": 11,
-    "adj_score": 0.2206,
-    "raw_mean": 0.2364
+    "adj_score": 0.2137,
+    "raw_mean": 0.2281
    }
   }
  },
  "top_posts": [
   {
-   "id": "e3685ed9-25b9-421a-a33c-d5050317f426",
-   "title": "البرلمان المغربي 2026: الأرقام الكاملة",
-   "views": 10,
-   "score": 0.4
-  },
-  {
-   "id": "15461731-a9b8-4473-816e-0a3a2b9a89b9",
-   "title": "الثروة كتبدا من مشكلة",
-   "views": 10,
-   "score": 0.4
-  },
-  {
    "id": "5e2d2daa-e6b2-4888-8d07-c3ab73588965",
    "title": "كل مهمة متكررة قابلة للأتمتة",
-   "views": 8,
+   "views": 9,
    "score": 0.4
   },
   {
    "id": "287bfcaf-0de8-47c3-8c76-ea5fac451e35",
    "title": "حِرَف اليابان الحية: كنوز وطنية حية - تقرير Nexa Stories",
-   "views": 9,
+   "views": 10,
    "score": 0.4
   },
   {
    "id": "e14ea847-f051-4384-92d5-be3cc8e7816f",
    "title": "الصين ولحظة القوة الناعمة - China’s Soft Power Moment - Nexa Stories",
-   "views": 8,
+   "views": 9,
    "score": 0.4
+  },
+  {
+   "id": "e3685ed9-25b9-421a-a33c-d5050317f426",
+   "title": "البرلمان المغربي 2026: الأرقام الكاملة",
+   "views": 11,
+   "score": 0.3636
+  },
+  {
+   "id": "15461731-a9b8-4473-816e-0a3a2b9a89b9",
+   "title": "الثروة كتبدا من مشكلة",
+   "views": 11,
+   "score": 0.3636
   }
  ],
  "status": "ready",
@@ -141,19 +141,19 @@
    "feature": "format",
    "value": "image",
    "n": 6,
-   "lift_vs_next": 1.33
+   "lift_vs_next": 1.29
   },
   {
    "feature": "title_has_number",
    "value": "no_number",
    "n": 27,
-   "lift_vs_next": 1.24
+   "lift_vs_next": 1.26
   },
   {
    "feature": "post_hour",
    "value": "night(0-5)",
    "n": 11,
-   "lift_vs_next": 1.2
+   "lift_vs_next": 1.19
   }
  ]
 }

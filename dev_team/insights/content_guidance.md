@@ -3,6 +3,6 @@
 Status: ready (34 learnable posts)
 
 Data-backed preferences (apply to new titles/hooks/schedule):
-- format = image (n=6, 1.33x vs next best)
-- title_has_number = no_number (n=27, 1.24x vs next best)
-- post_hour = night(0-5) (n=11, 1.2x vs next best)
+- format = image (n=6, 1.29x vs next best)
+- title_has_number = no_number (n=27, 1.26x vs next best)
+- post_hour = night(0-5) (n=11, 1.19x vs next best)
