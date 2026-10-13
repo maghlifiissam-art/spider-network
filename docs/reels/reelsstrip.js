@@ -50,13 +50,16 @@
   function secHead(icon, map, href) {
     return '<div class="rsh"><span class="ric">' + icon + '</span><b>' + (map[lg()] || map.en) + '</b><a href="' + href + '">' + (VIEWALL[lg()] || VIEWALL.en) + '</a></div>';
   }
-  var secPosts = null, secBlog = null;
+  var secPosts = null, secPosts2 = null, secBlog = null;
   function ensureSections() {
     if (!secPosts) {
       secPosts = document.createElement("div");
       secPosts.className = "rlsc";
       secPosts.innerHTML = secHead("&#128196;", POSTS, "posts.html") + '<div class="rpb"></div>';
-      fillPosts(secPosts.querySelector(".rpb"), secPosts);
+      secPosts2 = document.createElement("div");
+      secPosts2.className = "rlsc";
+      secPosts2.innerHTML = '<div class="rpb"></div>';
+      fillPosts(secPosts.querySelector(".rpb"), secPosts, secPosts2);
     }
     if (!secBlog) {
       secBlog = document.createElement("div");
@@ -65,12 +68,12 @@
       fillBlog(secBlog.querySelector(".rbb"), secBlog);
     }
   }
-  function fillPosts(list, sec) {
-    if (typeof SBC === "undefined" || !SBC) { sec.style.display = "none"; return; }
-    SBC.from("posts").select("id,kind,title,body,media_url,poster_url,source_url,source_platform,source_author,topic,is_sponsored,channels(handle,name)").order("created_at", { ascending: false }).limit(4)
+  function fillPosts(list, sec, sec2) {
+    if (typeof SBC === "undefined" || !SBC) { sec.style.display = "none"; sec2.style.display = "none"; return; }
+    SBC.from("posts").select("id,kind,title,body,media_url,poster_url,source_url,source_platform,source_author,topic,is_sponsored,channels(handle,name)").order("created_at", { ascending: false }).limit(12)
       .then(function (r) {
-        if (r.error || !r.data || !r.data.length) { sec.style.display = "none"; return; }
-        list.innerHTML = r.data.map(function (p) {
+        if (r.error || !r.data || !r.data.length) { sec.style.display = "none"; sec2.style.display = "none"; return; }
+        var render = function (p) {
           var h = (p.channels && p.channels.handle) || "";
           var topic = "";
           try { topic = (typeof T === "function") ? T(p.topic || "") : (p.topic || ""); } catch (e) { topic = p.topic || ""; }
@@ -83,8 +86,12 @@
           if (p.kind === "video" && p.media_url) s += '<a class="rpv" href="posts.html?p=' + p.id + '">' + (p.poster_url ? '<img loading="lazy" decoding="async" src="' + esc(p.poster_url) + '" alt="">' : '') + '</a>';
           if (p.source_url) s += '<div class="rps">&#128279; ' + esc(p.source_platform || "web") + (p.source_author ? " &middot; " + esc(p.source_author) : "") + ' <a href="' + esc(p.source_url) + '" target="_blank" rel="noopener noreferrer nofollow">&#8599;</a></div>';
           return s + '</div>';
-        }).join("");
-      }).catch(function () { sec.style.display = "none"; });
+        };
+        list.innerHTML = r.data.slice(0, 4).map(render).join("");
+        var rest = r.data.slice(4);
+        if (rest.length) { sec2.querySelector(".rpb").innerHTML = rest.map(render).join(""); }
+        else { sec2.style.display = "none"; }
+      }).catch(function () { sec.style.display = "none"; sec2.style.display = "none"; });
   }
   function fillBlog(list, sec) {
     fetch("../", { credentials: "omit" }).then(function (r) {
@@ -119,6 +126,7 @@
       if (em && !/loading|chargement|تحميل|كنحم/i.test(em.textContent)) { H.classList.add("pl"); return; }
       box.innerHTML = head() + '<div class="rhr"><i class="rhl"></i><i class="rhl"></i><i class="rhl"></i></div>';
       box.appendChild(secPosts);
+      box.appendChild(secPosts2);
       box.appendChild(secBlog);
       box.style.display = "block";
       return;
@@ -164,6 +172,7 @@
     });
     box.appendChild(secPosts);
     if (row2.childNodes.length) box.appendChild(row2);
+    box.appendChild(secPosts2);
     box.appendChild(secBlog);
     box.style.display = "block";
   }
