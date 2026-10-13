@@ -1,9 +1,9 @@
-/* Mobile home: Facebook-style Reels strip replaces the auto-playing posts feed.
-   Tap a reel card to open the full-screen player; the back button returns to the strip.
-   Desktop (min-width:1000px) keeps the existing grid landing. */
+/* Home landing (mobile + desktop): Facebook-style Reels strip replaces the auto-playing
+   posts feed (mobile) and the old thumbnail grid (desktop). Tap a reel card to open the
+   full-screen player; the back button returns to the strip. */
 (function () {
   var H = document.documentElement;
-  var mq = matchMedia("(max-width:999px)");
+  var mqWide = matchMedia("(min-width:1000px)");
   var box = null;
   var LBL = { en: "Reels", fr: "Reels", ar: "ريلزات", ary: "ريلزات", es: "Reels", pt: "Reels", de: "Reels", tr: "Reels" };
   function label() { return LBL[localStorage.getItem("lang") || "en"] || LBL.en; }
@@ -14,11 +14,14 @@
   }
   function ensureBox() {
     box = document.getElementById("rlz");
-    if (!box) {
-      box = document.createElement("div");
-      box.id = "rlz";
+    if (!box) { box = document.createElement("div"); box.id = "rlz"; }
+    var host = mqWide.matches ? document.getElementById("gmn") : null;
+    if (host) {
+      var gch = document.getElementById("gch");
+      if (box.parentNode !== host) host.insertBefore(box, gch ? gch.nextSibling : null);
+    } else {
       var f = feed();
-      f.parentNode.insertBefore(box, f);
+      if (f && box.nextSibling !== f) f.parentNode.insertBefore(box, f);
     }
     return box;
   }
@@ -40,7 +43,7 @@
   }
   function build() {
     ensureBox();
-    if (!mq.matches || H.classList.contains("pl")) { box.style.display = "none"; return; }
+    if (H.classList.contains("pl")) { box.style.display = "none"; return; }
     var f = feed();
     var cs = cards();
     if (!cs.length) {
@@ -90,7 +93,7 @@
   var f = feed();
   if (f) new MutationObserver(soon).observe(f, { childList: true });
   new MutationObserver(soon).observe(H, { attributes: true, attributeFilter: ["class"] });
-  if (mq.addEventListener) mq.addEventListener("change", soon);
+  if (mqWide.addEventListener) mqWide.addEventListener("change", soon);
   var nav = document.getElementById("nav");
   if (nav) nav.addEventListener("click", function (e) {
     var b = e.target.closest("button[data-k]");
