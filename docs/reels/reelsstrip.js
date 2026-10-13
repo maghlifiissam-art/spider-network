@@ -133,6 +133,7 @@
     }
     box.innerHTML = head() + '<div class="rhr rhr1"></div>';
     var row = box.querySelector(".rhr");
+    var btns = [];
     cs.forEach(function (c) {
       var v = c.querySelector("video");
       var poster = (v.dataset && v.dataset.poster) || v.getAttribute("poster") || "";
@@ -162,12 +163,12 @@
       if (h) { var hh = document.createElement("span"); hh.className = "rhh"; hh.textContent = h; bt.appendChild(hh); }
       b.appendChild(bt);
       b.addEventListener("click", function () { openCard(c); });
-      b._card = c;
+      btns.push(b);
     });
     var perRow = mqWide.matches ? 5 : (matchMedia("(min-width:700px)").matches ? 3 : 2);
     var row2 = document.createElement("div");
     row2.className = "rhr rhr2";
-    box.querySelectorAll(".rhc").forEach(function (b, i) {
+    btns.forEach(function (b, i) {
       (i < perRow ? row : row2).appendChild(b);
     });
     box.appendChild(secPosts);
