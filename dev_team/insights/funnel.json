@@ -1,26 +1,26 @@
 {
  "latest": {
-  "t": "2026-10-13T14:13:07+00:00",
+  "t": "2026-10-13T22:45:42+00:00",
   "registered_accounts": 7,
   "publishing_creators": 0,
   "activation_rule": ">=1 published non-sponsored non-pinned post, excluding platform-owned channels",
   "viewer": {
-   "views": 351,
+   "views": 357,
    "likes": 22,
    "comments": 0,
    "reactions": 0,
-   "posts_total": 18,
+   "posts_total": 20,
    "posts_by_outside_creators": 0,
    "views_on_outside_creators": 0
   }
  },
- "snapshots": 17,
+ "snapshots": 18,
  "target_publishing_creators": 1000,
  "progress_pct": 0.0,
  "since_previous": {
   "registered_accounts": 0,
   "publishing_creators": 0,
-  "views": 30
+  "views": 6
  },
  "activation_rate": 0.0
 }
