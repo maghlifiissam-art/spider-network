@@ -57,7 +57,9 @@
       var poster = (v.dataset && v.dataset.poster) || v.getAttribute("poster") || "";
       var t = ((c.querySelector("h2") || {}).textContent || "").trim();
       var a = c.querySelector('a[href^="channel.html"]');
-      var h = a ? a.textContent.trim() : "";
+      var h = "";
+      if (a) { var m = a.textContent.match(/@[\w.-]+/); h = m ? m[0] : ""; }
+      if (!t || t === h) { t = h; h = ""; }
       var b = document.createElement("button");
       b.type = "button";
       b.className = "rhc" + (poster ? "" : " np");
