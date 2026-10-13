@@ -1,6 +1,7 @@
 /* Home landing (mobile + desktop): Facebook-style Reels strip replaces the auto-playing
-   posts feed (mobile) and the old thumbnail grid (desktop). Tap a reel card to open the
-   full-screen player; the back button returns to the strip. */
+   posts feed (mobile) and the old thumbnail grid (desktop), followed inline by the
+   Posts feed (Supabase posts) and the latest blog posts. One page: reels -> posts -> blog.
+   Tap a reel card to open the full-screen player; the back button returns to the strip. */
 (function () {
   var H = document.documentElement;
   var mqWide = matchMedia("(min-width:1000px)");
@@ -8,7 +9,10 @@
   var LBL = { en: "Reels", fr: "Reels", ar: "ريلزات", ary: "ريلزات", es: "Reels", pt: "Reels", de: "Reels", tr: "Reels" };
   var POSTS = { en: "Posts", fr: "Publications", ar: "المنشورات", ary: "المنشورات", es: "Publicaciones", pt: "Publicações", de: "Beiträge", tr: "Gönderiler" };
   var BLOG = { en: "Blog", fr: "Blog", ar: "التدوينات", ary: "التدوينات", es: "Blog", pt: "Blog", de: "Blog", tr: "Blog" };
-  function label() { return LBL[localStorage.getItem("lang") || "en"] || LBL.en; }
+  var VIEWALL = { en: "See all", fr: "Tout voir", ar: "عرض الكل", ary: "شوف الكل", es: "Ver todo", pt: "Ver tudo", de: "Alle ansehen", tr: "Tümünü gör" };
+  function lg() { return localStorage.getItem("lang") || "en"; }
+  function label() { return LBL[lg()] || LBL.en; }
+  function esc(t) { return String(t == null ? "" : t).replace(/[&<>"']/g, function (c) { return "&#" + c.charCodeAt(0) + ";"; }); }
   function feed() { return document.getElementById("feed"); }
   function cards() {
     var f = feed();
@@ -43,26 +47,83 @@
   function head() {
     return '<div class="rhz"><span class="ric">&#127916;</span><b>' + label() + '</b></div>';
   }
-  function linksRow() {
-    var lg = localStorage.getItem("lang") || "en";
-    return '<div class="rln">'
-      + '<a class="rla" href="posts.html"><span>&#128196;</span><b>' + (POSTS[lg] || POSTS.en) + '</b></a>'
-      + '<a class="rla" href="../"><span>&#9998;</span><b>' + (BLOG[lg] || BLOG.en) + '</b></a>'
-      + '</div>';
+  function secHead(icon, map, href) {
+    return '<div class="rsh"><span class="ric">' + icon + '</span><b>' + (map[lg()] || map.en) + '</b><a href="' + href + '">' + (VIEWALL[lg()] || VIEWALL.en) + '</a></div>';
+  }
+  var secPosts = null, secBlog = null;
+  function ensureSections() {
+    if (!secPosts) {
+      secPosts = document.createElement("div");
+      secPosts.className = "rlsc";
+      secPosts.innerHTML = secHead("&#128196;", POSTS, "posts.html") + '<div class="rpb"></div>';
+      fillPosts(secPosts.querySelector(".rpb"), secPosts);
+    }
+    if (!secBlog) {
+      secBlog = document.createElement("div");
+      secBlog.className = "rlsc";
+      secBlog.innerHTML = secHead("&#9998;", BLOG, "../") + '<div class="rbb"></div>';
+      fillBlog(secBlog.querySelector(".rbb"), secBlog);
+    }
+  }
+  function fillPosts(list, sec) {
+    if (typeof SBC === "undefined" || !SBC) { sec.style.display = "none"; return; }
+    SBC.from("posts").select("id,kind,title,body,media_url,poster_url,source_url,source_platform,source_author,topic,is_sponsored,channels(handle,name)").order("created_at", { ascending: false }).limit(12)
+      .then(function (r) {
+        if (r.error || !r.data || !r.data.length) { sec.style.display = "none"; return; }
+        list.innerHTML = r.data.map(function (p) {
+          var h = (p.channels && p.channels.handle) || "";
+          var topic = "";
+          try { topic = (typeof T === "function") ? T(p.topic || "") : (p.topic || ""); } catch (e) { topic = p.topic || ""; }
+          var s = '<div class="rpc"><div class="rph">'
+            + (h ? '<a href="channel.html?h=' + encodeURIComponent(h) + '">@' + esc(h) + '</a>' : '')
+            + '<span>' + esc(topic) + (p.is_sponsored ? " &middot; Ad" : "") + '</span></div>';
+          if (p.title) s += '<a class="rpt" href="posts.html?p=' + p.id + '"><h3>' + esc(p.title) + '</h3></a>';
+          if (p.body) s += '<p>' + esc(p.body) + '</p>';
+          if (p.kind === "image" && p.media_url) s += '<a href="posts.html?p=' + p.id + '"><img loading="lazy" decoding="async" src="' + esc(p.media_url) + '" alt=""></a>';
+          if (p.kind === "video" && p.media_url) s += '<a class="rpv" href="posts.html?p=' + p.id + '">' + (p.poster_url ? '<img loading="lazy" decoding="async" src="' + esc(p.poster_url) + '" alt="">' : '') + '</a>';
+          if (p.source_url) s += '<div class="rps">&#128279; ' + esc(p.source_platform || "web") + (p.source_author ? " &middot; " + esc(p.source_author) : "") + ' <a href="' + esc(p.source_url) + '" target="_blank" rel="noopener noreferrer nofollow">&#8599;</a></div>';
+          return s + '</div>';
+        }).join("");
+      }).catch(function () { sec.style.display = "none"; });
+  }
+  function fillBlog(list, sec) {
+    fetch("../", { credentials: "omit" }).then(function (r) {
+      if (!r.ok) throw 0;
+      return r.text();
+    }).then(function (html) {
+      var doc = new DOMParser().parseFromString(html, "text/html");
+      var lis = [].slice.call(doc.querySelectorAll("ul li")).slice(0, 6);
+      if (!lis.length) throw 0;
+      var out = "";
+      lis.forEach(function (li) {
+        var a = li.querySelector("a");
+        if (!a) return;
+        var href = "";
+        try { href = new URL(a.getAttribute("href"), location.origin + "/").href; } catch (e) { return; }
+        var t = (a.textContent || "").trim();
+        var d = (li.textContent || "").replace(a.textContent || "", "").replace(/^[\s\u00b7\u2013\u2014-]+/, "").trim();
+        out += '<a class="rba" href="' + esc(href) + '"><span class="rbt2">' + esc(t) + '</span>' + (d ? '<span class="rbd">' + esc(d) + '</span>' : "") + '</a>';
+      });
+      if (!out) throw 0;
+      list.innerHTML = out;
+    }).catch(function () { sec.style.display = "none"; });
   }
   function build() {
     ensureBox();
+    ensureSections();
     if (H.classList.contains("pl")) { box.style.display = "none"; return; }
     var f = feed();
     var cs = cards();
     if (!cs.length) {
       var em = f ? f.querySelector(".empty") : null;
       if (em && !/loading|chargement|تحميل|كنحم/i.test(em.textContent)) { H.classList.add("pl"); return; }
-      box.innerHTML = head() + '<div class="rhr"><i class="rhl"></i><i class="rhl"></i><i class="rhl"></i></div>' + linksRow();
+      box.innerHTML = head() + '<div class="rhr"><i class="rhl"></i><i class="rhl"></i><i class="rhl"></i></div>';
+      box.appendChild(secPosts);
+      box.appendChild(secBlog);
       box.style.display = "block";
       return;
     }
-    box.innerHTML = head() + '<div class="rhr"></div>' + linksRow();
+    box.innerHTML = head() + '<div class="rhr"></div>';
     var row = box.querySelector(".rhr");
     cs.forEach(function (c) {
       var v = c.querySelector("video");
@@ -95,6 +156,8 @@
       b.addEventListener("click", function () { openCard(c); });
       row.appendChild(b);
     });
+    box.appendChild(secPosts);
+    box.appendChild(secBlog);
     box.style.display = "block";
   }
   var tm = null;
