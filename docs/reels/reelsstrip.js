@@ -6,6 +6,8 @@
   var mqWide = matchMedia("(min-width:1000px)");
   var box = null;
   var LBL = { en: "Reels", fr: "Reels", ar: "ريلزات", ary: "ريلزات", es: "Reels", pt: "Reels", de: "Reels", tr: "Reels" };
+  var POSTS = { en: "Posts", fr: "Publications", ar: "المنشورات", ary: "المنشورات", es: "Publicaciones", pt: "Publicações", de: "Beiträge", tr: "Gönderiler" };
+  var BLOG = { en: "Blog", fr: "Blog", ar: "التدوينات", ary: "التدوينات", es: "Blog", pt: "Blog", de: "Blog", tr: "Blog" };
   function label() { return LBL[localStorage.getItem("lang") || "en"] || LBL.en; }
   function feed() { return document.getElementById("feed"); }
   function cards() {
@@ -41,6 +43,13 @@
   function head() {
     return '<div class="rhz"><span class="ric">&#127916;</span><b>' + label() + '</b></div>';
   }
+  function linksRow() {
+    var lg = localStorage.getItem("lang") || "en";
+    return '<div class="rln">'
+      + '<a class="rla" href="posts.html"><span>&#128196;</span><b>' + (POSTS[lg] || POSTS.en) + '</b></a>'
+      + '<a class="rla" href="../"><span>&#9998;</span><b>' + (BLOG[lg] || BLOG.en) + '</b></a>'
+      + '</div>';
+  }
   function build() {
     ensureBox();
     if (H.classList.contains("pl")) { box.style.display = "none"; return; }
@@ -49,11 +58,11 @@
     if (!cs.length) {
       var em = f ? f.querySelector(".empty") : null;
       if (em && !/loading|chargement|تحميل|كنحم/i.test(em.textContent)) { H.classList.add("pl"); return; }
-      box.innerHTML = head() + '<div class="rhr"><i class="rhl"></i><i class="rhl"></i><i class="rhl"></i></div>';
+      box.innerHTML = head() + '<div class="rhr"><i class="rhl"></i><i class="rhl"></i><i class="rhl"></i></div>' + linksRow();
       box.style.display = "block";
       return;
     }
-    box.innerHTML = head() + '<div class="rhr"></div>';
+    box.innerHTML = head() + '<div class="rhr"></div>' + linksRow();
     var row = box.querySelector(".rhr");
     cs.forEach(function (c) {
       var v = c.querySelector("video");
