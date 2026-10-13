@@ -67,7 +67,7 @@
   }
   function fillPosts(list, sec) {
     if (typeof SBC === "undefined" || !SBC) { sec.style.display = "none"; return; }
-    SBC.from("posts").select("id,kind,title,body,media_url,poster_url,source_url,source_platform,source_author,topic,is_sponsored,channels(handle,name)").order("created_at", { ascending: false }).limit(12)
+    SBC.from("posts").select("id,kind,title,body,media_url,poster_url,source_url,source_platform,source_author,topic,is_sponsored,channels(handle,name)").order("created_at", { ascending: false }).limit(4)
       .then(function (r) {
         if (r.error || !r.data || !r.data.length) { sec.style.display = "none"; return; }
         list.innerHTML = r.data.map(function (p) {
@@ -123,7 +123,7 @@
       box.style.display = "block";
       return;
     }
-    box.innerHTML = head() + '<div class="rhr"></div>';
+    box.innerHTML = head() + '<div class="rhr rhr1"></div>';
     var row = box.querySelector(".rhr");
     cs.forEach(function (c) {
       var v = c.querySelector("video");
@@ -154,9 +154,16 @@
       if (h) { var hh = document.createElement("span"); hh.className = "rhh"; hh.textContent = h; bt.appendChild(hh); }
       b.appendChild(bt);
       b.addEventListener("click", function () { openCard(c); });
-      row.appendChild(b);
+      b._card = c;
+    });
+    var perRow = mqWide.matches ? 5 : (matchMedia("(min-width:700px)").matches ? 3 : 2);
+    var row2 = document.createElement("div");
+    row2.className = "rhr rhr2";
+    box.querySelectorAll(".rhc").forEach(function (b, i) {
+      (i < perRow ? row : row2).appendChild(b);
     });
     box.appendChild(secPosts);
+    if (row2.childNodes.length) box.appendChild(row2);
     box.appendChild(secBlog);
     box.style.display = "block";
   }
