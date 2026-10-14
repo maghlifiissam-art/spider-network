@@ -6,6 +6,8 @@
   var H = document.documentElement;
   var mqWide = matchMedia("(min-width:1000px)");
   var box = null;
+  var images = new IntersectionObserver(function(entries){entries.forEach(function(entry){if(!entry.isIntersecting)return;var image=entry.target;if(image.dataset.src&&!image.getAttribute("src"))image.src=image.dataset.src;images.unobserve(image);});},{rootMargin:"120px 0px"});
+  function watchImages(container){container.querySelectorAll("img[data-src]").forEach(function(image){images.observe(image);});}
   var LBL = { en: "Reels", fr: "Reels", ar: "ريلزات", ary: "ريلزات", es: "Reels", pt: "Reels", de: "Reels", tr: "Reels" };
   var POSTS = { en: "Posts", fr: "Publications", ar: "المنشورات", ary: "المنشورات", es: "Publicaciones", pt: "Publicações", de: "Beiträge", tr: "Gönderiler" };
   var BLOG = { en: "Blog", fr: "Blog", ar: "التدوينات", ary: "التدوينات", es: "Blog", pt: "Blog", de: "Blog", tr: "Blog" };
@@ -82,8 +84,8 @@
             + '<span>' + esc(topic) + (p.is_sponsored ? " &middot; Ad" : "") + '</span></div>';
           if (p.title) s += '<a class="rpt" href="posts.html?p=' + p.id + '"><h3>' + esc(p.title) + '</h3></a>';
           if (p.body) s += '<p>' + esc(p.body) + '</p>';
-          if (p.kind === "image" && p.media_url) s += '<a href="posts.html?p=' + p.id + '"><img loading="lazy" decoding="async" src="' + esc(p.media_url) + '" alt=""></a>';
-          if (p.kind === "video" && p.media_url) s += '<a class="rpv" href="posts.html?p=' + p.id + '">' + (p.poster_url ? '<img loading="lazy" decoding="async" src="' + esc(p.poster_url) + '" alt="">' : '') + '</a>';
+          if (p.kind === "image" && p.media_url) s += '<a href="posts.html?p=' + p.id + '"><img loading="lazy" decoding="async" data-src="' + esc(p.media_url) + '" alt=""></a>';
+          if (p.kind === "video" && p.media_url) s += '<a class="rpv" href="posts.html?p=' + p.id + '">' + (p.poster_url ? '<img loading="lazy" decoding="async" data-src="' + esc(p.poster_url) + '" alt="">' : '') + '</a>';
           if (p.source_url) s += '<div class="rps">&#128279; ' + esc(p.source_platform || "web") + (p.source_author ? " &middot; " + esc(p.source_author) : "") + ' <a href="' + esc(p.source_url) + '" target="_blank" rel="noopener noreferrer nofollow">&#8599;</a></div>';
           return s + '</div>';
         };
@@ -91,6 +93,7 @@
         var rest = r.data.slice(4);
         if (rest.length) { sec2.querySelector(".rpb").innerHTML = rest.map(render).join(""); }
         else { sec2.style.display = "none"; }
+        watchImages(sec);watchImages(sec2);
       }).catch(function () { sec.style.display = "none"; sec2.style.display = "none"; });
   }
   function fillBlog(list, sec) {
@@ -147,7 +150,7 @@
       b.className = "rhc" + (poster ? "" : " np");
       if (poster) {
         var im = document.createElement("img");
-        im.src = poster;
+        im.dataset.src = poster;
         im.alt = "";
         im.loading = "lazy";
         im.decoding = "async";
@@ -176,6 +179,7 @@
     box.appendChild(secPosts2);
     box.appendChild(secBlog);
     box.style.display = "block";
+    watchImages(box);
   }
   var tm = null;
   function soon() { clearTimeout(tm); tm = setTimeout(build, 200); }
