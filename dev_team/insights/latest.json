@@ -1,105 +1,110 @@
 {
- "generated_at": "2026-10-14T21:42:09+00:00",
- "posts_total": 40,
- "posts_learnable": 38,
+ "generated_at": "2026-10-15T04:40:35+00:00",
+ "posts_total": 46,
+ "posts_learnable": 44,
  "min_posts": 30,
- "global_mean_score": 0.1627,
+ "global_mean_score": 0.1405,
  "features": {
   "format": {
    "video": {
     "n": 11,
-    "adj_score": 0.1564,
+    "adj_score": 0.1495,
     "raw_mean": 0.1535
    },
    "text": {
     "n": 5,
-    "adj_score": 0.1195,
+    "adj_score": 0.1084,
     "raw_mean": 0.0764
    },
    "video/series": {
-    "n": 16,
-    "adj_score": 0.1532,
-    "raw_mean": 0.1502
+    "n": 22,
+    "adj_score": 0.1151,
+    "raw_mean": 0.1093
    },
    "image": {
     "n": 6,
-    "adj_score": 0.2293,
+    "adj_score": 0.2192,
     "raw_mean": 0.2848
    }
   },
   "topic": {
    "general": {
     "n": 17,
-    "adj_score": 0.1914,
+    "adj_score": 0.1864,
     "raw_mean": 0.1999
    },
    "news": {
     "n": 5,
-    "adj_score": 0.1195,
+    "adj_score": 0.1084,
     "raw_mean": 0.0764
    },
    "films": {
     "n": 16,
-    "adj_score": 0.1532,
+    "adj_score": 0.1479,
     "raw_mean": 0.1502
+   },
+   "series": {
+    "n": 6,
+    "adj_score": 0.0639,
+    "raw_mean": 0.0
    }
   },
   "title_question": {
    "statement": {
-    "n": 37,
-    "adj_score": 0.1634,
-    "raw_mean": 0.1635
+    "n": 43,
+    "adj_score": 0.1407,
+    "raw_mean": 0.1407
    },
    "question": {
     "n": 1,
-    "adj_score": 0.1578,
+    "adj_score": 0.1393,
     "raw_mean": 0.1333
    }
   },
   "title_length": {
    "short(<=3w)": {
-    "n": 8,
-    "adj_score": 0.1631,
-    "raw_mean": 0.1634
+    "n": 10,
+    "adj_score": 0.134,
+    "raw_mean": 0.1307
    },
    "medium(4-6w)": {
-    "n": 13,
-    "adj_score": 0.1614,
-    "raw_mean": 0.1608
+    "n": 17,
+    "adj_score": 0.127,
+    "raw_mean": 0.123
    },
    "long(7w+)": {
     "n": 17,
-    "adj_score": 0.1636,
+    "adj_score": 0.1586,
     "raw_mean": 0.1639
    }
   },
   "title_has_number": {
    "no_number": {
-    "n": 31,
-    "adj_score": 0.1685,
-    "raw_mean": 0.1695
+    "n": 33,
+    "adj_score": 0.1567,
+    "raw_mean": 0.1592
    },
    "number": {
-    "n": 7,
-    "adj_score": 0.1453,
-    "raw_mean": 0.1329
+    "n": 11,
+    "adj_score": 0.1021,
+    "raw_mean": 0.0846
    }
   },
   "post_hour": {
    "evening(18-23)": {
     "n": 15,
-    "adj_score": 0.1351,
+    "adj_score": 0.1296,
     "raw_mean": 0.1259
    },
    "morning(6-11)": {
     "n": 10,
-    "adj_score": 0.1733,
+    "adj_score": 0.1659,
     "raw_mean": 0.1786
    },
    "night(0-5)": {
-    "n": 13,
-    "adj_score": 0.1846,
-    "raw_mean": 0.193
+    "n": 19,
+    "adj_score": 0.1338,
+    "raw_mean": 0.1321
    }
   }
  },
@@ -147,13 +152,25 @@
    "feature": "topic",
    "value": "general",
    "n": 17,
-   "lift_vs_next": 1.25
+   "lift_vs_next": 1.26
+  },
+  {
+   "feature": "title_length",
+   "value": "long(7w+)",
+   "n": 17,
+   "lift_vs_next": 1.18
   },
   {
    "feature": "title_has_number",
    "value": "no_number",
-   "n": 31,
-   "lift_vs_next": 1.16
+   "n": 33,
+   "lift_vs_next": 1.53
+  },
+  {
+   "feature": "post_hour",
+   "value": "morning(6-11)",
+   "n": 10,
+   "lift_vs_next": 1.24
   }
  ]
 }
