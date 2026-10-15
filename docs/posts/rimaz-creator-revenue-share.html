@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RIMAZ: the video platform that pays creators 70% of ad revenue</title>
+<meta name="description" content="RIMAZ is an international video platform that shares revenue with creators: 70% to the creator, paid monthly from $50, proportional to views. Watch the intro video and read the terms.">
+<style>
+body{font-family:system-ui,"Segoe UI",Tahoma,sans-serif;max-width:720px;margin:2rem auto;padding:0 1rem;line-height:1.9;color:#1b1b1b}
+h1{line-height:1.4}.meta{color:#666;font-size:.9rem}
+a{color:#0b57d0}
+.vid{position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:1rem 0}
+.vid iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0}
+.rbx{display:flex;gap:10px;margin:2rem 0 1rem;border-top:1px solid #e5e5e5;padding-top:1rem}.rbx .rb{background:#f4f4f4;border:1px solid #e0e0e0;border-radius:20px;padding:8px 18px;font-size:16px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;color:#1b1b1b;font-family:inherit}.rbx .rb .ic{font-size:20px}.rbx .rb.on{color:#d40000;border-color:#d40000;background:#fff0f0}</style>
+</head>
+<body>
+<p><a href="../index.html">&larr; All posts</a></p>
+<h1>RIMAZ: the video platform that pays creators 70% of ad revenue</h1>
+<p class="meta">October 15, 2026 &middot; Introducing the RIMAZ video platform</p>
+<p>We launched <a href="https://rimaz.org/reels/">RIMAZ</a>, an international video platform built on a simple idea: the creator owns the value, so the creator takes <strong>70% of the revenue</strong> their content earns. No paid membership to join, no complicated requirements &mdash; publish your videos and your earnings grow proportionally with your views.</p>
+<h2>How the revenue share works</h2>
+<p>1. <strong>A 70/30 split in your favor</strong>: from all net ad revenue the platform earns, 70% goes to creators and 30% keeps the platform running and improving.</p>
+<p>2. <strong>Proportional to your views</strong>: your share of the creator pool is calculated from your views out of total views, transparently, with no hidden algorithms.</p>
+<p>3. <strong>Monthly payouts from $50</strong>: once your balance reaches $50 it is paid in the monthly cycle; anything below rolls over automatically to the next month.</p>
+<p>4. <strong>Original or licensed content only</strong>: to protect creators and the platform alike, we only publish content you own the rights to or hold a license for.</p>
+<p>The full terms are public: <a href="https://rimaz.org/reels/terms.html">rimaz.org/reels/terms.html</a>.</p>
+<h2>Watch the intro</h2>
+<div class="vid"><iframe src="https://www.youtube-nocookie.com/embed/SM-kZZeNTm0" title="RIMAZ &mdash; The Video Platform That Pays Creators for Their Views" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>
+<p>Prefer Arabic or French? The intro video and announcement are available in both: <a href="rimaz-pays-creators-for-views.html">&#1575;&#1604;&#1606;&#1587;&#1582;&#1577; &#1575;&#1604;&#1593;&#1585;&#1576;&#1610;&#1577;</a>.</p>
+<h2>Launch goal</h2>
+<p>Joining is open now to creators everywhere. Our first goal is clear: <strong>1,000 creators and 10 million views</strong>. Every creator who joins early benefits from a larger share while the content base is still growing.</p>
+<p>To start: open <a href="https://rimaz.org/reels/">rimaz.org</a>, watch what is already published, and start posting your original videos.</p>
+<hr>
+<p>Digital guides to download and print: <a href="https://maghlifi.gumroad.com">Maghlifi store on Gumroad</a></p>
+<div class="rbx" id="rbx">
+<button class="rb" id="rbl" aria-label="Like"><span class="ic">&#9825;</span><span id="rlc">0</span></button>
+<button class="rb" id="rbs" aria-label="Share"><span class="ic">&#8599;</span><span>Share</span></button>
+</div>
+<script>
+(function(){var slug=location.pathname.split("/").pop().replace(/\.html$/,"");
+var like=document.getElementById("rbl"),cnt=document.getElementById("rlc"),key="rbx_like_"+slug;
+var st=0;try{st=localStorage.getItem(key)==="1"?1:0}catch(e){}
+function draw(){like.classList.toggle("on",!!st);like.querySelector(".ic").innerHTML=st?"&#9829;":"&#9825;";cnt.textContent=st}
+draw();
+like.onclick=function(){st=st?0:1;try{localStorage.setItem(key,String(st))}catch(e){}draw()};
+var sh=document.getElementById("rbs");
+sh.onclick=async function(){var u=location.href,t=document.title;
+if(navigator.share){try{await navigator.share({title:t,url:u});return}catch(_){}}
+try{await navigator.clipboard.writeText(u);var lab=sh.lastElementChild,o=lab.textContent;lab.textContent="Copied!";setTimeout(function(){lab.textContent=o},1500)}catch(_){window.open("https://wa.me/?text="+encodeURIComponent(t+" "+u),"_blank","noopener")}};
+})();
+</script>
+</body>
+</html>
