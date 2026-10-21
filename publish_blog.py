@@ -156,9 +156,11 @@ def main():
             items.append((dt, f'<li><a href="posts/{slug}.html">{html.escape(title)}</a> · {date_ar}</li>'))
         m = re.search(r'<ul>(.*?)</ul>', idx, flags=re.S)
         for li in re.findall(r'<li>.*?</li>', m.group(1), flags=re.S):
-            dm = re.search(r'(\d{1,2}) (\S+) (\d{4})</li>', li)
-            mm = {v: k for k, v in MONTHS.items()}
-            dkey = datetime.date(int(dm.group(3)), mm[dm.group(2)], int(dm.group(1))) if dm else datetime.date(2026,1,1)
+            li_txt = html.unescape(li)
+            dm = re.search(r'(\d{1,2}) (\S+) (\d{4})</li>', li_txt)
+            norm = lambda s: s.replace('\u0623', '\u0627').replace('\u0625', '\u0627').replace('\u0622', '\u0627')
+            mm = {norm(v): k for k, v in MONTHS.items()}
+            dkey = datetime.date(int(dm.group(3)), mm.get(norm(dm.group(2)), 1), int(dm.group(1))) if dm else datetime.date(2026,1,1)
             items.append((dkey, li))
         items.sort(key=lambda x: -x[0].toordinal())
         idx = idx[:m.start(1)] + '\n' + '\n'.join(x[1] for x in items) + '\n' + idx[m.end(1):]
