@@ -34,6 +34,6 @@ else:
 
 st.subheader("الربط (مرة وحدة لكل منصة)")
 st.markdown('<div class="ar">', unsafe_allow_html=True)
-st.code("python scripts/auth_youtube.py\npython scripts/auth_meta.py\npython scripts/auth_tiktok.py", language=None)
+st.code("python scripts/auth_youtube.py\npython scripts/auth_meta.py\n# TikTok: see TIKTOK_SETUP.md", language=None)
 st.markdown("الأسرار كتمشي لـ .env المحلي فقط — ممنوعة من git.", unsafe_allow_html=True)
 st.markdown('</div>', unsafe_allow_html=True)
