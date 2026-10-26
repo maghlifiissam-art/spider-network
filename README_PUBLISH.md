@@ -37,7 +37,7 @@ exception, never a post. Secrets never enter this repo: they live in local `.env
 ```bash
 python scripts/auth_youtube.py   # Google Cloud project + OAuth, writes .env
 python scripts/auth_meta.py      # Meta Business app + Page token, writes .env
-python scripts/auth_tiktok.py    # TikTok developer app + OAuth, writes .env
+See TIKTOK_SETUP.md for TikTok developer app + secure OAuth setup (not live)
 ```
 
 Run: `python -m unittest tests/test_publish_spider.py -v`. Streamlit page: `pages/11_Publish_Spider.py`.
