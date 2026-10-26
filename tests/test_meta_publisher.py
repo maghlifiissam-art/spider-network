@@ -1,4 +1,5 @@
 import os
+import json
 import unittest
 import tempfile
 from pathlib import Path
@@ -14,6 +15,13 @@ def job(page_id=""):
 
 
 class MetaRoutingTests(unittest.TestCase):
+    def test_json_schema_accepts_explicit_destination_contract(self):
+        schema = json.loads((Path(__file__).resolve().parents[1] / "schemas" / "publish_job.schema.json").read_text())
+        data = job("111").to_dict()
+        self.assertFalse(schema["additionalProperties"])
+        self.assertLessEqual(set(data), set(schema["properties"]))
+        self.assertEqual(schema["properties"]["facebook_page_id"]["type"], "string")
+
     def test_dry_run_never_calls_network(self):
         with patch.object(meta.requests, "post") as post:
             self.assertEqual(meta.publish_facebook(job(), True).status, "dry_run")
