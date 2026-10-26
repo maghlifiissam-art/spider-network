@@ -40,6 +40,7 @@ class PublishJob:
     product_sku: str = ""            # optional: product being promoted
     utm_campaign: str = ""           # optional: link tracking for sales follow-up
     hashtags: list[str] = field(default_factory=list)
+    facebook_page_id: str = ""      # explicit destination, never inferred from account order
     thumbnail_path: str = ""
     scheduled_at: str = ""           # optional ISO datetime; empty = publish now
     contract_version: str = CONTRACT_VERSION
