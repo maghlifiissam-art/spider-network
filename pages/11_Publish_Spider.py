@@ -34,6 +34,6 @@ else:
 
 st.subheader("الربط (مرة وحدة لكل منصة)")
 st.markdown('<div class="ar">', unsafe_allow_html=True)
-st.code("python scripts/auth_youtube.py\npython scripts/auth_meta.py\npython scripts/auth_tiktok.py", language=None)
-st.markdown("الأسرار كتمشي لـ .env المحلي فقط — ممنوعة من git.", unsafe_allow_html=True)
+st.code("python scripts/auth_youtube.py\n# Meta: README_META_SETUP.md (explicit Page IDs, private secret-file inputs)\npython scripts/auth_tiktok.py", language=None)
+st.markdown("Meta: الأسرار كتبقى فخزنة آمنة أو إعدادات السيرفر، وممنوعة من git. خاص كل طلب يحدد facebook_page_id؛ الربط ماشي موافقة على النشر.", unsafe_allow_html=True)
 st.markdown('</div>', unsafe_allow_html=True)
