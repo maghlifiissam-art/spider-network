@@ -3,7 +3,7 @@ import json
 import unittest
 import tempfile
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 from publish_contracts import PublishJob
 from publishers import meta_publisher as meta
 from scripts.auth_meta import select_pages, private_json
@@ -65,6 +65,47 @@ class MetaRoutingTests(unittest.TestCase):
 
     def test_non_string_page_id_fails_closed(self):
         with self.assertRaises(ValueError): meta._facebook_destination(job(111))
+
+    def test_documented_uploaded_handle_sequence_uses_explicit_page(self):
+        env = {"META_PAGE_TOKEN_ENV_MAP": '{"111":"META_A_PAGE_TOKEN"}',
+               "META_A_PAGE_TOKEN": "page-sentinel", "META_APP_ID": "999",
+               "META_USER_ACCESS_TOKEN": "user-sentinel"}
+        responses = [Mock(ok=True, json=lambda: {"id":"upload:abc"}),
+                     Mock(ok=True, json=lambda: {"h":"handle-sentinel"}),
+                     Mock(ok=True, json=lambda: {"id":"12345"})]
+        with tempfile.TemporaryDirectory() as folder:
+            source = Path(folder) / "sample.mp4"
+            source.write_bytes(b"fictitious offline test bytes")
+            j = job("111"); j.video_path = str(source)
+            with patch.dict(os.environ, env, clear=True), patch.object(meta.requests, "post", side_effect=responses) as post:
+                receipt = meta.publish_facebook(j, False)
+            self.assertEqual(receipt.status, "published")
+            self.assertEqual(receipt.privacy_state, "unverified")
+            self.assertFalse(receipt.url)
+            self.assertEqual(post.call_count, 3)
+            calls = post.call_args_list
+            self.assertEqual(calls[0].args[0], meta.GRAPH + "/999/uploads")
+            self.assertEqual(calls[1].kwargs["headers"]["Authorization"], "OAuth user-sentinel")
+            self.assertEqual(calls[2].args[0], "https://graph-video.facebook.com/v26.0/111/videos")
+            self.assertEqual(calls[2].kwargs["data"]["fbuploader_video_file_chunk"], "handle-sentinel")
+
+    def test_missing_upload_credentials_never_start_write(self):
+        env = {"META_PAGE_TOKEN_ENV_MAP": '{"111":"META_A_PAGE_TOKEN"}', "META_A_PAGE_TOKEN":"page"}
+        with patch.dict(os.environ, env, clear=True), patch.object(meta.requests, "post") as post:
+            self.assertEqual(meta.publish_facebook(job("111"), False).status, "failed")
+            post.assert_not_called()
+
+    def test_unconfirmed_upload_is_never_automatically_retried(self):
+        env = {"META_PAGE_TOKEN_ENV_MAP": '{"111":"META_A_PAGE_TOKEN"}',
+               "META_A_PAGE_TOKEN":"page", "META_APP_ID":"999", "META_USER_ACCESS_TOKEN":"user"}
+        with tempfile.TemporaryDirectory() as folder:
+            source = Path(folder) / "sample.mp4"; source.write_bytes(b"offline")
+            j = job("111"); j.video_path = str(source)
+            with patch.dict(os.environ, env, clear=True), patch.object(meta.requests, "post", side_effect=TimeoutError("user page")) as post:
+                receipt = meta.publish_facebook(j, False)
+            self.assertEqual(post.call_count, 1)
+            self.assertEqual(receipt.status, "failed")
+            self.assertIn("reconcile before retry", receipt.detail)
 
     def test_private_output_never_overwrites_and_has_restricted_mode(self):
         with tempfile.TemporaryDirectory() as folder:
