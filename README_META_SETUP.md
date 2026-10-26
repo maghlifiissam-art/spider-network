@@ -59,3 +59,17 @@ public repository.
 
 Tests use mocks and fictitious identifiers, never real tokens or uploads:
 `python -m unittest tests.test_meta_publisher tests.test_publish_spider -v`.
+
+## Video upload route (not live-tested)
+
+The Facebook adapter follows Meta's uploaded-file-handle flow: own App ID and
+long-lived USER token create an upload session, upload MP4 bytes with OAuth header,
+then the explicit Page token publishes the returned handle via graph-video.
+Set META_APP_ID and META_USER_ACCESS_TOKEN in the verified runtime's secret store,
+in addition to the per-Page mapping. No write is retried automatically. A timeout
+is unconfirmed and must be reconciled before a deliberate retry. A returned video
+ID does not establish public visibility. Dry-run never uploads bytes or creates
+an upload session. This implementation still requires endpoint eligibility and
+an approved item before live testing.
+
+Official sequence: https://developers.facebook.com/documentation/video-api/guides/publishing
