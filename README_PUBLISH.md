@@ -21,14 +21,14 @@ Chain: `market_spy → bullet (brief) → media (video) → publish (job) → sa
 | Platform | API | Default behavior | Why |
 | --- | --- | --- | --- |
 | YouTube | Data API v3 `videos.insert` (scope `youtube.upload`) | uploads **private** | Unverified API projects are locked private until the free API compliance audit passes. Consent screen must be "In production" or the refresh token dies every 7 days. |
-| Facebook Page | Graph API `/{page}/videos` | public | Own-business app with Standard Access: no App Review. App must be in Live mode. |
+| Facebook Page | Graph API `/{page}/videos` | public | Explicit Page token and destination required. Current endpoint permissions, app access and media eligibility must be checked before each approved live integration. |
 | Instagram | Graph API media + media_publish (REELS) | public | Needs a **Professional** IG account linked to the Page, and a public `video_url` (staging happens outside this module for now). |
 | TikTok | Content Posting API | **draft to inbox** (`video.upload`) | Unaudited apps can only direct-post as SELF_ONLY; the draft flow lets the user tap publish in the app. `tiktok_mode: direct` stays off until TikTok approves. |
 
 ## Fail-closed by default
 
 `config/publish.yaml` ships with `dry_run: true`. Nothing posts until credentials exist
-and dry_run is flipped. Missing tokens produce a clear `failed` receipt, never an
+and dry_run is flipped for an individually approved job after endpoint checks. Missing tokens produce a clear `failed` receipt, never an
 exception, never a post. Secrets never enter this repo: they live in local `.env`
 (gitignored), Replit Secrets, or the owner's credential vault.
 
@@ -36,7 +36,7 @@ exception, never a post. Secrets never enter this repo: they live in local `.env
 
 ```bash
 python scripts/auth_youtube.py   # Google Cloud project + OAuth, writes .env
-python scripts/auth_meta.py      # Meta Business app + Page token, writes .env
+# Meta: see README_META_SETUP.md for explicit Page IDs and private secret-file inputs.
 python scripts/auth_tiktok.py    # TikTok developer app + OAuth, writes .env
 ```
 
