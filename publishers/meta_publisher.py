@@ -57,24 +57,48 @@ def publish_facebook(job: PublishJob, dry_run: bool = True) -> PublishReceipt:
     except ValueError as exc:
         return PublishReceipt(job.job_id, "facebook", "failed", detail=str(exc),
                               campaign_id=job.campaign_id)
-    try:
-        with open(job.video_path, "rb") as fh:
-            resp = requests.post(
-                f"{GRAPH}/{page_id}/videos",
-                data={"access_token": token, "title": job.title,
-                      "description": job.description},
-                files={"source": fh}, timeout=600)
-        data = resp.json()
-        if "id" not in data:
-            return PublishReceipt(job.job_id, "facebook", "failed",
-                                  detail="Meta request rejected; inspect redacted error metadata", campaign_id=job.campaign_id)
-        return PublishReceipt(job.job_id, "facebook", "published",
-                              detail="video posted to page",
-                              url=f"https://www.facebook.com/{data['id']}",
-                              privacy_state="public", campaign_id=job.campaign_id)
-    except Exception as exc:
-        return PublishReceipt(job.job_id, "facebook", "failed", detail="Meta request failed (credentials redacted)",
+    # Official uploaded-file-handle flow. A live upload remains a separately
+    # approved action; this function does not start sessions during dry-run.
+    user_token = os.environ.get("META_USER_ACCESS_TOKEN", "")
+    app_id = os.environ.get("META_APP_ID", "")
+    if not user_token or not app_id.isdecimal():
+        return PublishReceipt(job.job_id, "facebook", "failed",
+                              detail="Meta app/user upload credentials missing",
                               campaign_id=job.campaign_id)
+    try:
+        from pathlib import Path
+        source = Path(job.video_path)
+        if source.suffix.lower() != ".mp4" or not source.is_file() or not source.stat().st_size:
+            raise ValueError("invalid MP4 input")
+        # No automatic retry: an interrupted write needs reconciliation first.
+        session_response = requests.post(f"{GRAPH}/{app_id}/uploads",
+            headers={"Authorization": "Bearer " + user_token},
+            params={"file_name": source.name, "file_length": source.stat().st_size,
+                    "file_type": "video/mp4"}, timeout=60)
+        session = session_response.json().get("id", "")
+        if not session_response.ok or not isinstance(session, str) or not re.fullmatch(r"upload:[A-Za-z0-9_:.?=&%+~-]+", session):
+            raise ValueError("upload session rejected")
+        with source.open("rb") as fh:
+            upload_response = requests.post(f"{GRAPH}/{session}",
+                headers={"Authorization": "OAuth " + user_token, "file_offset": "0"},
+                data=fh, timeout=600)
+        handle = upload_response.json().get("h", "")
+        if not upload_response.ok or not isinstance(handle, str) or not handle:
+            raise ValueError("upload did not return handle")
+        response = requests.post(f"https://graph-video.facebook.com/v26.0/{page_id}/videos",
+            headers={"Authorization": "Bearer " + token},
+            data={"title": job.title, "description": job.description,
+                  "fbuploader_video_file_chunk": handle}, timeout=600)
+        video_id = response.json().get("id", "")
+        if not response.ok or not isinstance(video_id, str) or not video_id.isdecimal():
+            raise ValueError("publish receipt unconfirmed")
+        return PublishReceipt(job.job_id, "facebook", "published",
+            detail="Meta returned video ID " + video_id + "; public visibility not verified",
+            privacy_state="unverified", campaign_id=job.campaign_id)
+    except Exception:
+        return PublishReceipt(job.job_id, "facebook", "failed",
+            detail="Meta write unconfirmed; reconcile before retry (credentials redacted)",
+            campaign_id=job.campaign_id)
 
 
 def publish_instagram(job: PublishJob, video_url: str = "", dry_run: bool = True) -> PublishReceipt:
