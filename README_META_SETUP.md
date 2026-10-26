@@ -73,3 +73,29 @@ an upload session. This implementation still requires endpoint eligibility and
 an approved item before live testing.
 
 Official sequence: https://developers.facebook.com/documentation/video-api/guides/publishing
+
+## Candidate free preflight runtime (not deployed)
+
+The GET-only manual workflow uses a standard ubuntu-24.04 GitHub runner, read-only
+repository permissions, a pinned checkout action and the Python standard library.
+There is no schedule, upload, publish call, package install, artifact or cache.
+The repository is public; standard runner use is free. Larger runners are not.
+
+Before merging/running, an administrator must configure the `meta-preflight`
+environment with required owner review and main-only branch restriction, verify
+that protection is active, then add the three individual environment secrets
+META_USER_ACCESS_TOKEN, META_NEXA_ATELIER_PAGE_TOKEN and META_NEXA_STORIES_PAGE_TOKEN.
+Do not use general repository secrets or expose the App Secret to this job.
+Set environment variables META_APP_ID and META_PAGE_TOKEN_ENV_MAP using explicit
+Page IDs and matching token variable names. Inspect workflow/source at the exact
+commit before authorizing secret access. Avoid `Prevent self-review` for a sole
+owner who must approve their own manual run; this does not remove the review gate.
+No environment is created or populated by this draft. GitHub can auto-create an
+unprotected environment if a workflow names one that is missing, so configure and
+verify protections first, before any credentials or first run. A preflight pass
+verifies credentials, not public publishing eligibility.
+
+Sources:
+- https://docs.github.com/en/actions/reference/runners/github-hosted-runners
+- https://docs.github.com/en/actions/reference/security/secure-use
+- https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments
