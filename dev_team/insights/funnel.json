@@ -1,6 +1,6 @@
 {
  "latest": {
-  "t": "2026-11-13T19:42:56+00:00",
+  "t": "2026-11-14T06:24:03+00:00",
   "registered_accounts": 8,
   "publishing_creators": 0,
   "activation_rule": ">=1 published non-sponsored non-pinned post, excluding platform-owned channels",
@@ -14,7 +14,7 @@
    "views_on_outside_creators": 0
   }
  },
- "snapshots": 114,
+ "snapshots": 115,
  "target_publishing_creators": 1000,
  "progress_pct": 0.0,
  "since_previous": {
